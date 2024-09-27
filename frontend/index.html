@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Automato JFF</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            width: 300px;
+            margin: 0 auto;
+        }
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Automato (.jff)</h1>
+        <form id="uploadForm">
+            <input type="file" id="fileInput" name="file" accept=".jff" required>
+            <button type="submit">Upload</button>
+        </form>
+
+        <div class="result">
+            <h2>Resultado</h2>
+            <pre id="resultText">Nenhum arquivo enviado ainda.</pre>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const resultText = document.getElementById('resultText');
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                fetch('http://localhost:8080/api/automato/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    let result = 'Estados:\n';
+                    data.estados.forEach(estado => {
+                        result += `ID: ${estado.id}, Nome: ${estado.nome}, Inicial: ${estado.inicial}, Final: ${estado.final}\n`;
+                    });
+
+                    result += '\nTransições:\n';
+                    data.transicoes.forEach(transicao => {
+                        result += `De: ${transicao.origem.nome}, Para: ${transicao.destino.nome}, Símbolo: ${transicao.simbolo}\n`;
+                    });
+
+                    resultText.textContent = result;
+                })
+                .catch(error => {
+                    resultText.textContent = 'Erro ao enviar o arquivo: ' + error.message;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
