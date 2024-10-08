@@ -1,10 +1,13 @@
 package com.example.projecttc.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Automato {
     private String nome;
+    private Set<String> alfabeto = new HashSet<>(); //HashSet é para evitar que duplique a entrada do alfabeto
     private List<Estado> estados;
     private List<Transicao> transicoes;
 
@@ -36,14 +39,19 @@ public class Automato {
 
     public void addTransicao(Transicao transicao) {
         this.transicoes.add(transicao);
+        this.alfabeto.add(transicao.getSimbolo());
     }
 
     public Estado getEstadoPorId(int id) {
         for (Estado estado : estados) {
-            if (estado.getId() == id) { 
+            if (estado.getId() == id) {
                 return estado;
             }
         }
-        return null; 
+        return null;
+    }
+
+    public Set<String> getAlfabeto() {
+        return alfabeto;
     }
 }

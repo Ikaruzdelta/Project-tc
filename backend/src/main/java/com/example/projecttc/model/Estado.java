@@ -1,5 +1,8 @@
 package com.example.projecttc.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Estado {
     private int id;
     private String nome;
@@ -7,6 +10,7 @@ public class Estado {
     private boolean isFinal;
     private String y;
     private String x;
+    private List<Transicao> transicoes = new ArrayList<>();
 
     public Estado(int id, String nome, boolean isInicial, boolean isFinal, String x, String y) {
         this.id = id;
@@ -64,4 +68,18 @@ public class Estado {
     public void setY(String y){
         this.y = y;
     }
+
+    public boolean temTransicao(String simbolo) {
+        for (Transicao transicao : this.getTransicoes()) {
+            if (transicao.getSimbolo().equals(simbolo)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public List<Transicao> getTransicoes() {
+        return transicoes;
+    }
 }
+

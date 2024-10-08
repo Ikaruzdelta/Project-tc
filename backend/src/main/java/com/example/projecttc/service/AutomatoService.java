@@ -37,9 +37,31 @@ public class AutomatoService {
             throw new RuntimeException("Erro inesperado ao importar autômato", e);
         }
     }
-    
-    
+
+    public Automato completarAFD(Automato automato) {
+        int novoId = gerarNovoId(automato);
+        String nomeEstadoPoço = gerarNomeEstado(automato);
+        Estado estadoEspecial = new Estado(novoId, nomeEstadoPoço, false, false, "0", "0");
+        automato.addEstado(estadoEspecial);
+        for (Estado estado : automato.getEstados()) {
+            if (!estado.equals(estadoEspecial)) {
+                for (String simbolo : automato.getAlfabeto()) {
+                    if (!estado.temTransicao(simbolo)) {
+                        automato.addTransicao(new Transicao(estado, estadoEspecial, simbolo));
+                    }
+                }
+            }
+        }
+        for (String simbolo : automato.getAlfabeto()) {
+            if (!estadoEspecial.temTransicao(simbolo)) {
+                automato.addTransicao(new Transicao(estadoEspecial, estadoEspecial, simbolo));
+            }
+        }
+        return automato;
+    }
+
     public Automato aplicarComplemento(Automato automato) {
+        automato = completarAFD(automato);
         for (Estado estado : automato.getEstados()) {
             estado.setFinal(!estado.isFinal());
         }
@@ -64,5 +86,32 @@ public class AutomatoService {
 
     public Automato getAutomato() {
         return automatoAtual;
+    }
+
+    public int gerarNovoId(Automato automato) {
+        int maiorId = -1;
+        for (Estado estado : automato.getEstados()) {
+            if (estado.getId() > maiorId) {
+                maiorId = estado.getId();
+            }
+        }
+        return maiorId + 1;
+    }
+
+    public String gerarNomeEstado(Automato automato) {
+        int maxNum = -1;
+        for (Estado estado : automato.getEstados()) {
+            String nome = estado.getNome();
+            if (nome.startsWith("q")) {
+                try {
+                    int num = Integer.parseInt(nome.substring(1));
+                    if (num > maxNum) {
+                        maxNum = num;
+                    }
+                } catch (NumberFormatException e) {
+                }
+            }
+        }
+        return "q" + (maxNum + 1);
     }
 }

@@ -30,8 +30,4 @@ public class Transicao {
     public String getSimbolo() {
         return simbolo;
     }
-
-    public void setSimbolo(String simbolo) {
-        this.simbolo = simbolo;
-    }
 }
