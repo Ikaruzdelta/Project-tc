@@ -41,7 +41,7 @@ public class AutomatoService {
     public Automato completarAFD(Automato automato) {
         int novoId = gerarNovoId(automato);
         String nomeEstadoPoço = gerarNomeEstado(automato);
-        Estado estadoEspecial = new Estado(novoId, nomeEstadoPoço, false, false, "0", "0");
+        Estado estadoEspecial = new Estado(novoId, nomeEstadoPoço, false, false, 0, 0);
         automato.addEstado(estadoEspecial);
         for (Estado estado : automato.getEstados()) {
             if (!estado.equals(estadoEspecial)) {
