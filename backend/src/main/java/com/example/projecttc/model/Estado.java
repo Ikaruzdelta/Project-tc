@@ -8,17 +8,26 @@ public class Estado {
     private String nome;
     private boolean isInicial;
     private boolean isFinal;
-    private String y;
-    private String x;
+    private double y;
+    private double x;
     private List<Transicao> transicoes = new ArrayList<>();
 
-    public Estado(int id, String nome, boolean isInicial, boolean isFinal, String x, String y) {
+    public Estado(int id, String nome, boolean isInicial, boolean isFinal, double x, double y) {
         this.id = id;
         this.nome = nome;
         this.isInicial = isInicial;
         this.isFinal = isFinal;
         this.x = x;
         this.y = y;
+    }
+
+    public Estado(Estado estado) {
+        this.nome = estado.getNome();
+        this.id = estado.getId();
+        this.x = estado.getX();
+        this.y = estado.getY();
+        this.isFinal = estado.isFinal();
+        this.isFinal = estado.isInicial();
     }
 
     public int getId() {
@@ -53,19 +62,19 @@ public class Estado {
         this.isFinal = isFinal;
     }
 
-    public String getX(){
+    public double getX(){
         return x;
     }
 
-    public void setX(String x){
+    public void setX(double x){
         this.x = x;
     }
 
-    public String getY(){
+    public double getY(){
         return y;
     }
 
-    public void setY(String y){
+    public void setY(double y){
         this.y = y;
     }
 
@@ -80,6 +89,16 @@ public class Estado {
 
     public List<Transicao> getTransicoes() {
         return transicoes;
+    }
+
+    // Método para buscar um estado pela sua id
+    public static Estado getEstadoById(ArrayList<Estado> estados, int id) {
+        for (Estado estado : estados) {
+            if (estado.getId() == id) {
+                return estado;
+            }
+        }
+        return null; // Retorna null se nenhum estado com o ID for encontrado
     }
 }
 

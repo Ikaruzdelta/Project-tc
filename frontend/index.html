@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Automato JFF</title>
+    <title>Manipulação de Autômatos JFF</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,37 +19,59 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Upload Automato (.jff)</h1>
-        <form id="uploadForm">
-            <input type="file" id="fileInput" name="file" accept=".jff" required>
-            <button type="submit">Upload</button>
-        </form>
+<div class="container">
+    <h1>Manipulação de Autômatos (.jff)</h1>
 
-        <div class="result">
-            <h2>Resultado</h2>
-            <pre id="resultText">Nenhum arquivo enviado ainda.</pre>
-        </div>
+    <h2>Upload Automato (.jff)</h2>
+    <form id="uploadForm">
+        <input type="file" id="fileInput" name="file" accept=".jff" required>
+        <button type="submit">Upload</button>
+    </form>
+
+    <div class="result">
+        <h2>Resultado Upload</h2>
+        <pre id="uploadResult">Nenhum arquivo enviado ainda.</pre>
     </div>
 
-    <script>
-        const form = document.getElementById('uploadForm');
-        const resultText = document.getElementById('resultText');
+    <h2>Concatenar Autômatos (.jff)</h2>
+    <form id="concatenacaoForm">
+        <label for="file1">Arquivo JFF 1:</label>
+        <input type="file" id="file1" name="file1" accept=".jff" required><br><br>
 
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
+        <label for="file2">Arquivo JFF 2:</label>
+        <input type="file" id="file2" name="file2" accept=".jff" required><br><br>
 
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
+        <label for="outputPath">Caminho de Saída:</label>
+        <input type="text" id="outputPath" name="outputPath" placeholder="output.jff" required><br><br>
 
-            if (file) {
-                const formData = new FormData();
-                formData.append('file', file);
+        <button type="submit">Concatenar</button>
+    </form>
 
-                fetch('http://localhost:8080/api/automato/complemento', {
-                    method: 'POST',
-                    body: formData
-                })
+    <div class="result">
+        <h2>Resultado Concatenar</h2>
+        <pre id="concatResult">Nenhum arquivo enviado ainda.</pre>
+    </div>
+</div>
+
+<script>
+    // Upload de Automato
+    const uploadForm = document.getElementById('uploadForm');
+    const uploadResult = document.getElementById('uploadResult');
+
+    uploadForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+
+        if (file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('http://localhost:8080/api/automato/upload', {
+                method: 'POST',
+                body: formData
+            })
                 .then(response => response.json())
                 .then(data => {
                     let result = 'Estados:\n';
@@ -62,13 +84,57 @@
                         result += `De: ${transicao.origem.nome}, Para: ${transicao.destino.nome}, Símbolo: ${transicao.simbolo}\n`;
                     });
 
-                    resultText.textContent = result;
+                    uploadResult.textContent = result;
                 })
                 .catch(error => {
-                    resultText.textContent = 'Erro ao enviar o arquivo: ' + error.message;
+                    uploadResult.textContent = 'Erro ao enviar o arquivo: ' + error.message;
                 });
-            }
-        });
-    </script>
+        }
+    });
+
+    // Concatenar Automatos
+    const concatenacaoForm = document.getElementById('concatenacaoForm');
+    const concatResult = document.getElementById('concatResult');
+
+    concatenacaoForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const fileInput1 = document.getElementById('file1');
+        const fileInput2 = document.getElementById('file2');
+        const outputPath = document.getElementById('outputPath').value;
+
+        const file1 = fileInput1.files[0];
+        const file2 = fileInput2.files[0];
+
+        if (file1 && file2 && outputPath) {
+            const formData = new FormData();
+            formData.append('file1', file1);
+            formData.append('file2', file2);
+            formData.append('outputPath', outputPath);
+
+            fetch('http://localhost:8080/api/automato/concatenacao', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.text();
+                    } else {
+                        return response.text().then((text) => {
+                            throw new Error(text);
+                        });
+                    }
+                })
+                .then(data => {
+                    concatResult.textContent = 'Sucesso: ' + data;
+                })
+                .catch(error => {
+                    concatResult.textContent = 'Erro ao enviar os arquivos: ' + error.message;
+                });
+        } else {
+            concatResult.textContent = 'Por favor, selecione dois arquivos .jff e um caminho de saída.';
+        }
+    });
+</script>
 </body>
 </html>
