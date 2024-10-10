@@ -8,8 +8,8 @@ import java.util.Set;
 public class Automato {
     private String nome;
     private Set<String> alfabeto = new HashSet<>(); //HashSet é para evitar que duplique a entrada do alfabeto
-    private List<Estado> estados;
-    private List<Transicao> transicoes;
+    private ArrayList<Estado> estados;
+    private ArrayList<Transicao> transicoes;
 
     public Automato(String nome) {
         this.nome = nome;
@@ -40,15 +40,6 @@ public class Automato {
     public void addTransicao(Transicao transicao) {
         this.transicoes.add(transicao);
         this.alfabeto.add(transicao.getSimbolo());
-    }
-
-    public Estado getEstadoPorId(int id) {
-        for (Estado estado : estados) {
-            if (estado.getId() == id) {
-                return estado;
-            }
-        }
-        return null;
     }
 
     public Set<String> getAlfabeto() {

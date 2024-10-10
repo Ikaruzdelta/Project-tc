@@ -114,8 +114,8 @@ public class ConcatenacaoService {
             int paraIndex = transicao.getDestino().getId() + stateIdOffset;
 
             // Busca os estados ajustados nos novosEstados usando os IDs calculados
-            Estado deEstado = Estado.getEstadoById(novosEstados, deIndex);
-            Estado paraEstado = Estado.getEstadoById(novosEstados, paraIndex);
+            Estado deEstado = EstadoService.getEstadoById(novosEstados, deIndex);
+            Estado paraEstado = EstadoService.getEstadoById(novosEstados, paraIndex);
 
             // Se ambos os estados forem encontrados, cria uma nova transição
             if (deEstado != null && paraEstado != null) {
@@ -145,7 +145,7 @@ public class ConcatenacaoService {
                             int estado2Index = estado2.getId();
 
                             // Encontra o estado inicial ajustado no novo conjunto de estados
-                            Estado estadoInicial2 = Estado.getEstadoById(novosEstados, estado2Index + stateIdOffset);
+                            Estado estadoInicial2 = EstadoService.getEstadoById(novosEstados, estado2Index + stateIdOffset);
 
                             // Cria uma nova transição de lambda do estado final do primeiro autômato
                             // para o estado inicial do segundo autômato

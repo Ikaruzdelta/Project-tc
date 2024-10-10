@@ -10,7 +10,7 @@ public class Estado {
     private boolean isFinal;
     private double y;
     private double x;
-    private List<Transicao> transicoes = new ArrayList<>();
+    private ArrayList<Transicao> transicoes = new ArrayList<>();
 
     public Estado(int id, String nome, boolean isInicial, boolean isFinal, double x, double y) {
         this.id = id;
@@ -78,27 +78,9 @@ public class Estado {
         this.y = y;
     }
 
-    public boolean temTransicao(String simbolo) {
-        for (Transicao transicao : this.getTransicoes()) {
-            if (transicao.getSimbolo().equals(simbolo)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public List<Transicao> getTransicoes() {
         return transicoes;
     }
 
-    // Método para buscar um estado pela sua id
-    public static Estado getEstadoById(ArrayList<Estado> estados, int id) {
-        for (Estado estado : estados) {
-            if (estado.getId() == id) {
-                return estado;
-            }
-        }
-        return null; // Retorna null se nenhum estado com o ID for encontrado
-    }
 }
 

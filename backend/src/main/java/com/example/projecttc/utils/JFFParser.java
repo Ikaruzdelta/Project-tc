@@ -1,8 +1,11 @@
 package com.example.projecttc.utils;
 
 import java.io.File;
+import java.util.ArrayList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import com.example.projecttc.service.EstadoService;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -56,8 +59,8 @@ public class JFFParser {
                 String to = transitionElement.getElementsByTagName("to").item(0).getTextContent();
                 String symbol = transitionElement.getElementsByTagName("read").item(0).getTextContent();
 
-                Estado origem = automato.getEstadoPorId(Integer.parseInt(from));
-                Estado destino = automato.getEstadoPorId(Integer.parseInt(to));
+                Estado origem = EstadoService.getEstadoById((ArrayList<Estado>) automato.getEstados(),Integer.parseInt(from));
+                Estado destino = EstadoService.getEstadoById((ArrayList<Estado>) automato.getEstados(),Integer.parseInt(to));
 
                 if (origem != null && destino != null) {
                     Transicao transicao = new Transicao(origem, destino, symbol);
@@ -65,7 +68,7 @@ public class JFFParser {
                 }
             }
         }
-
+        EstadoService.carregarTransicoesEstado(automato);
         return automato;
     }
 }
