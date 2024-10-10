@@ -3,9 +3,6 @@ import com.example.projecttc.model.Automato;
 import com.example.projecttc.model.Estado;
 import com.example.projecttc.model.Transicao;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class CompletarAfd {
 
     public static boolean isAFDCompleto(Automato automato) {
@@ -33,14 +30,14 @@ public class CompletarAfd {
         }
 
         // Se todas as verificações passarem, o AFD é completo
-
         return true;
     }
 
 
     public static void deixarAFDCompleto(Automato automato) {
         // Criar o estado consumidor, garantindo que ele não tem transições saindo
-        Estado estadoConsumidor = new Estado(-1, "qConsumidor", false, false, 300, 300);
+        int novoId = GerarNovoId.gerarNovoId(automato);
+        Estado estadoConsumidor = new Estado(novoId, "q"+novoId, false, false, 300, 300);
 
         // Adicionar o estado consumidor à lista de estados, se ainda não estiver presente
         if (!automato.getEstados().contains(estadoConsumidor)) {
