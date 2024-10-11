@@ -1,8 +1,0 @@
-com/example/projecttc/config/WebConfig.class
-com/example/projecttc/utils/JFFParser.class
-com/example/projecttc/model/Transicao.class
-com/example/projecttc/App.class
-com/example/projecttc/controller/AutomatoController.class
-com/example/projecttc/service/AutomatoService.class
-com/example/projecttc/model/Automato.class
-com/example/projecttc/model/Estado.class
