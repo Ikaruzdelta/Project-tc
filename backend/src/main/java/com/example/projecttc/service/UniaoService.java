@@ -1,31 +1,17 @@
 package com.example.projecttc.service;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.example.projecttc.model.Automato;
 import com.example.projecttc.model.Estado;
 import com.example.projecttc.model.Transicao;
-import com.example.projecttc.utils.GravarXML;
-import com.example.projecttc.utils.JFFParser;
+import com.example.projecttc.utils.CompletarAfd;
+import com.example.projecttc.utils.VerificarAlfabeto;
 
 @Service
 public class UniaoService {
-    public void UnirAFN(MultipartFile file1, MultipartFile file2, String outputFilePath) throws Exception {
-        // Salva os arquivos recebidos temporariamente
-        File tempFile1 = File.createTempFile("automato1", ".jff");
-        file1.transferTo(tempFile1);
-
-        File tempFile2 = File.createTempFile("automato2", ".jff");
-        file2.transferTo(tempFile2);
-
-        // Parsing dos arquivos XML para criar os autômatos
-        Automato automato1 = JFFParser.parse(tempFile1);
-        Automato automato2 = JFFParser.parse(tempFile2);
-
+    public Automato UnirAFN(Automato automato1, Automato automato2) throws Exception {
         // ArrayLists que serão preenchidos com os dados dos autômatos
         ArrayList<Estado> lstEstados1 = (ArrayList<Estado>) automato1.getEstados();
         ArrayList<Transicao> lstTransicoes1 = (ArrayList<Transicao>) automato1.getTransicoes();
@@ -118,9 +104,103 @@ public class UniaoService {
         transicoes.addAll(lstTransicoes1);
         transicoes.addAll(lstTransicoes2);
         transicoes.addAll(transicaoParaNovoFinal);
+        return new Automato("UniaoAFN",estados,transicoes);
+    }
+    public Automato UnirAFD(Automato automato1, Automato automato2) {
 
-        // Grava o autômato resultante em XML
-        GravarXML gravador = new GravarXML();
-        gravador.gravarAutomato(estados, transicoes, outputFilePath);
+        if(VerificarAlfabeto.compararAlfabeto(automato1.getAlfabeto(),automato2.getAlfabeto())) {
+            ArrayList<Estado> novosEstados = new ArrayList<Estado>();
+            ArrayList<Transicao> novasTransicoes = new ArrayList<Transicao>();
+
+            CompletarAfd.deixarAFDCompleto(automato1);
+            CompletarAfd.deixarAFDCompleto(automato2);
+
+            //percorre todos os estados dos 2 automatos para realizar as combinações
+            for (Estado estado1 : automato1.getEstados()) {
+                for (Estado estado2 : automato2.getEstados()) {
+                    if (!estado1.isInicial() || !estado2.isInicial()) {
+                        //verifica se são finais
+                        if (estado1.isFinal() || estado2.isFinal()) {
+                            novosEstados.add(new Estado(novosEstados.size(), estado1.getNome() + ";" + estado2.getNome(),  true, false, estado1.getX(), estado1.getY()));
+                        } else {
+                            novosEstados.add(new Estado(novosEstados.size(),estado1.getNome() + ";" + estado2.getNome(), false, false, estado1.getX(), estado1.getY()));
+                        }
+                        //eh inicial
+                    } else {
+                        //eh inicial e final
+                        if (estado1.isFinal() || estado2.isFinal()) {
+                            novosEstados.add(new Estado(novosEstados.size(), estado1.getNome() + ";" + estado2.getNome(), true, true, estado1.getX(), estado1.getY()));
+                            //eh inicial mas nao eh final
+                        } else {
+                            novosEstados.add(new Estado(novosEstados.size(), estado1.getNome() + ";" + estado2.getNome(), false, true, estado1.getX(), estado1.getY()));
+                        }
+                    }
+                }
+            }
+
+            // Percorre todas as combinações dos novos estados
+            for (Estado estado : novosEstados) {
+                System.out.println("Combinação dos estados: " + estado.getNome());
+
+                String[] nomes = estado.getNome().split(";"); // Dividir o nome do estado combinado para recuperar os dois estados originais
+
+                //Pegar a referencia de cada um individualmente em suas respectivas listas
+                Estado estado1 = automato1.getEstados().stream().filter(e -> e.getNome().equals(nomes[0])).findFirst().get();
+                Estado estado2 = automato2.getEstados().stream().filter(e -> e.getNome().equals(nomes[1])).findFirst().get();
+                System.out.println("Estado 1: " + estado1.getNome());
+                System.out.println("Estado 2: " + estado2.getNome());
+                //se achou
+                if (estado1 != null && estado2 != null) {
+                    // Pega as transições específicas de cada estado e joga num array para saber se está atualizado
+                    ArrayList<Transicao> transicoesEstado1 = (ArrayList<Transicao>) estado1.getTransicoes();
+                    System.out.println("Transições do estado " + estado1.getNome());
+                    for (Transicao t : transicoesEstado1) {
+                        System.out.println(" " + t.getOrigem().getNome() + " --" + t.getSimbolo() + " --> " + t.getDestino().getNome());
+                    }
+
+                    ArrayList<Transicao> transicoesEstado2 =(ArrayList<Transicao>) estado2.getTransicoes();
+                    System.out.println("Transições do estado " + estado2.getNome());
+                    for (Transicao t : transicoesEstado2) {
+                        System.out.println(" " + t.getOrigem().getNome() + " --" + t.getSimbolo() + " --> " + t.getDestino().getNome());
+                    }
+                    System.out.println("\n\n");
+                    //commprara as transições entre os dois estados
+                    for (Transicao transicao1 : transicoesEstado1) {
+                        for (Transicao transicao2 : transicoesEstado2) {
+
+                            System.out.println(" " + transicao1.getOrigem().getNome() + " - " + transicao1.getSimbolo() + " -> " + transicao1.getDestino().getNome());
+                            System.out.println(" " + transicao2.getOrigem().getNome() + " - " + transicao2.getSimbolo() + " -> " + transicao2.getDestino().getNome());
+
+                            //se as duas transições são iguais
+                            if (transicao1.getSimbolo().equals(transicao2.getSimbolo())) {
+                                System.out.println("Entrou! Símbolo: " + transicao1.getSimbolo());
+
+                                //vejo pra onde vai individualmente e retornar a combinação a partir das combinações existentes
+                                Estado estadoDestino = encontrarNovoEstado(novosEstados, transicao1.getOrigem(), transicao2.getDestino());
+                                if (estadoDestino != null) {
+                                    novasTransicoes.add(new Transicao(estado, estadoDestino, transicao1.getSimbolo()));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        return new Automato("UniaoAFD",novosEstados,novasTransicoes);
+        }
+        else{
+            System.out.println("Nao eh possivel realizar a uniao entre automatos cujos alfabetos nao sao totalmente semelhantes");
+        }
+        return null;
+    }
+    private Estado encontrarNovoEstado(ArrayList<Estado> novosEstados, Estado estado1, Estado estado2) {
+        for (Estado estado : novosEstados) {
+            // Verifica se o estado novo existe com base na combinação dos nomes dos dois estados originais
+            if (estado.getNome().equals(estado1.getNome() + ";"+estado2.getNome())) {
+                System.out.println("entrou!");
+                return estado;
+            }
+        }
+        // Retorna null se o estado não for encontrado
+        return null;
     }
 }

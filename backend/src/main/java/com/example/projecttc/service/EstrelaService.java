@@ -3,24 +3,12 @@ package com.example.projecttc.service;
 import com.example.projecttc.model.Automato;
 import com.example.projecttc.model.Estado;
 import com.example.projecttc.model.Transicao;
-import com.example.projecttc.utils.GravarXML;
-import com.example.projecttc.utils.JFFParser;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
 import java.util.ArrayList;
 
 @Service
 public class EstrelaService {
-    public void aplicarEstrela(MultipartFile file, String outputFilePath) throws Exception {
-        // Salva os arquivos recebidos temporariamente
-        File tempFile = File.createTempFile("automato", ".jff");
-        file.transferTo(tempFile);
-
-        // Parsing dos arquivos XML para criar os autômatos
-        Automato automato = JFFParser.parse(tempFile);
-
+    public Automato aplicarEstrela(Automato automato) throws Exception {
         // ArrayLists que serão preenchidos com os dados dos autômatos
         ArrayList<Estado> lstEstados = (ArrayList<Estado>) automato.getEstados();
         ArrayList<Transicao> lstTransicoes = (ArrayList<Transicao>) automato.getTransicoes();
@@ -63,8 +51,6 @@ public class EstrelaService {
             lstTransicoes.add(transicaoFinal);
         }
 
-        // Gravar o autômato com o novo estado inicial e as transições ajustadas
-        GravarXML gravador = new GravarXML();
-        gravador.gravarAutomato(lstEstados, lstTransicoes, outputFilePath);
+        return new Automato("estrela",lstEstados, lstTransicoes);
     }
 }
