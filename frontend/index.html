@@ -78,32 +78,47 @@
 </div>
 
 <script>
-    // Função para enviar arquivos para o servidor
+    // Função para enviar arquivos para o servidor e exibir o resultado
     function enviarArquivo(formData, url, resultElement) {
+        // Limpar o conteúdo anterior antes de começar
+        resultElement.textContent = "Processando...";
+
         fetch(url, {
             method: 'POST',
             body: formData
         })
-            .then(response => {
-                if (response.ok) {
-                    return response.text();
-                } else {
-                    return response.text().then((text) => {
-                        throw new Error(text);
-                    });
-                }
-            })
-            .then(data => {
-                resultElement.textContent = 'Sucesso: ' + data;
-            })
-            .catch(error => {
-                resultElement.textContent = 'Erro: ' + error.message;
-            });
+        .then(response => {
+            if (response.ok) {
+                return response.text();
+            } else {
+                return response.text().then((text) => {
+                    throw new Error(text);
+                });
+            }
+        })
+        .then(data => {
+            resultElement.textContent = data; // Exibe o resultado do automato retornado pela API
+            // Adicionar link para download se o caminho do arquivo estiver presente
+            const regex = /Arquivo salvo em: (.*)/;
+            const match = data.match(regex);
+            if (match) {
+                const filePath = match[1];
+                const downloadLink = document.createElement('a');
+                downloadLink.href = 'http://localhost:8080/' + filePath; // Ajuste conforme o backend
+                downloadLink.textContent = 'Baixar XML';
+                downloadLink.download = filePath.split('/').pop();
+                resultElement.appendChild(document.createElement('br'));
+                resultElement.appendChild(downloadLink);
+            }
+        })
+        .catch(error => {
+            resultElement.textContent = 'Erro: ' + error.message;
+        });
     }
 
     // Complementar Automato
     document.getElementById('complementoForm').addEventListener('submit', function (e) {
-        e.preventDefault();
+        e.preventDefault(); // Prevenir o comportamento padrão de submit do formulário
         const file = document.getElementById('fileComplemento').files[0];
         const formData = new FormData();
         formData.append('file', file);
@@ -112,7 +127,7 @@
 
     // Estrela de Automato
     document.getElementById('estrelaForm').addEventListener('submit', function (e) {
-        e.preventDefault();
+        e.preventDefault(); // Prevenir o comportamento padrão de submit do formulário
         const file = document.getElementById('fileEstrela').files[0];
         const formData = new FormData();
         formData.append('file', file);
@@ -121,7 +136,7 @@
 
     // Concatenar Automatos
     document.getElementById('concatenacaoForm').addEventListener('submit', function (e) {
-        e.preventDefault();
+        e.preventDefault(); // Prevenir o comportamento padrão de submit do formulário
         const file1 = document.getElementById('file1').files[0];
         const file2 = document.getElementById('file2').files[0];
         const formData = new FormData();
@@ -132,7 +147,7 @@
 
     // União de Automatos
     document.getElementById('uniaoForm').addEventListener('submit', function (e) {
-        e.preventDefault();
+        e.preventDefault(); // Prevenir o comportamento padrão de submit do formulário
         const file1 = document.getElementById('fileUniao1').files[0];
         const file2 = document.getElementById('fileUniao2').files[0];
         const formData = new FormData();
