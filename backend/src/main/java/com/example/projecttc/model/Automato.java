@@ -17,12 +17,6 @@ public class Automato {
         this.transicoes = new ArrayList<>();
     }
 
-    public Automato(String nome, ArrayList<Estado> estados, ArrayList<Transicao> transicoes) {
-        this.nome = nome;
-        this.estados = estados;
-        this.transicoes = transicoes;
-    }
-
     public String getNome() {
         return nome;
     }

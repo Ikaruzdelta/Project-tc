@@ -9,32 +9,34 @@ import java.util.Set;
 public class ValidacaoAFD {
 
     public static boolean isAFD(Automato automato) {
-        // Usando HashSet para verificar transições repetidas
+        // Conjunto para armazenar pares únicos de estado e símbolo
         Set<String> transicoesVerificadas = new HashSet<>();
         boolean temTransicaoEpsilon = false;
-        boolean transicaoRepetida = false;
 
-        // Iterar sobre as transições do autômato
+        // Iterar sobre todas as transições do autômato
         for (Transicao transicao : automato.getTransicoes()) {
             int estadoDeId = transicao.getOrigem().getId();
             String simbolo = transicao.getSimbolo();
 
-            // Verificar se é uma transição epsilon
-            if (simbolo.equals("\u03b5") || simbolo.equals("")) {
-                temTransicaoEpsilon = true;
+            // Verifica se é uma transição epsilon
+            if (simbolo.equals("ε")) {
+                temTransicaoEpsilon = true; // Encontra uma transição epsilon
+                break; // Se encontrar um epsilon, já pode parar a verificação
             } else {
-                // Criar uma chave única para a transição (estado-origem + símbolo)
+                // Cria uma representação única do par estado-símbolo
                 String transicaoKey = estadoDeId + "-" + simbolo;
 
-                // Verificar se a transição já existe
-                if (!transicoesVerificadas.add(transicaoKey)) {
-                    // Se não conseguiu adicionar, significa que a transição é repetida
-                    transicaoRepetida = true;
+                // Verifica se já existe uma transição para esse par estado-símbolo
+                if (transicoesVerificadas.contains(transicaoKey)) {
+                    return false; // Se encontrar uma transição repetida, não é um AFD
                 }
+
+                // Adiciona a transição ao conjunto de transições verificadas
+                transicoesVerificadas.add(transicaoKey);
             }
         }
 
-        // Retornar true somente se não houver transições epsilon nem repetidas
-        return !temTransicaoEpsilon && !transicaoRepetida;
+        // Se não encontrarmos transições epsilon e nem transições repetidas, é um AFD
+        return !temTransicaoEpsilon;
     }
 }
