@@ -1,35 +1,19 @@
 package com.example.projecttc.service;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.example.projecttc.utils.GravarXML;
 import com.example.projecttc.model.Automato;
 import com.example.projecttc.model.Estado;
 import com.example.projecttc.model.Transicao;
-import com.example.projecttc.utils.JFFParser;
 
 @Service
 public class ConcatenacaoService {
 
     // Método principal para concatenar dois autômatos
-    public void concatenar(MultipartFile file1, MultipartFile file2, String outputFilePath) throws Exception {
+    public Automato concatenar(Automato automato1, Automato automato2) throws Exception {
         int spacing = 200; // Define o espaçamento entre os autômatos
-
-        // Salva os arquivos recebidos temporariamente
-        File tempFile1 = File.createTempFile("automato1", ".jff");
-        file1.transferTo(tempFile1);
-
-        File tempFile2 = File.createTempFile("automato2", ".jff");
-        file2.transferTo(tempFile2);
-
-        // Parsing dos arquivos XML para criar os autômatos
-        Automato automato1 = JFFParser.parse(tempFile1);
-        Automato automato2 = JFFParser.parse(tempFile2);
-
+        
         // ArrayLists que serão preenchidos com os dados dos autômatos
         ArrayList<Estado> lstEstados1 = (ArrayList<Estado>) automato1.getEstados();
         ArrayList<Transicao> lstTransicoes1 = (ArrayList<Transicao>) automato1.getTransicoes();
@@ -53,9 +37,7 @@ public class ConcatenacaoService {
         // Cria as transições de lambda entre os estados finais do primeiro autômato e o estado inicial do segundo
         createLambdaTransitions(lstEstados1, lstEstados2, novosEstados, novasTransicoes, stateIdOffset);
 
-        // Grava o arquivo concatenado
-        GravarXML gravador = new GravarXML();
-        gravador.gravarAutomato(novosEstados, novasTransicoes, outputFilePath);
+        return new Automato("concatenacao",novosEstados,novasTransicoes);
     }
 
     // Método auxiliar para obter o valor máximo de X e coletar os estados finais
