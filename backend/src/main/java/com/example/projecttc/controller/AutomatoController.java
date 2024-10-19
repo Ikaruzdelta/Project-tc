@@ -3,13 +3,11 @@ package com.example.projecttc.controller;
 import com.example.projecttc.model.Automato;
 import com.example.projecttc.model.Estado;
 import com.example.projecttc.model.Transicao;
-import com.example.projecttc.service.ComplementoService;
-import com.example.projecttc.service.ConcatenacaoService;
-import com.example.projecttc.service.EstrelaService;
-import com.example.projecttc.service.UniaoService;
+import com.example.projecttc.service.*;
 import com.example.projecttc.utils.ExibirResultado;
 import com.example.projecttc.utils.GravarXML;
 import com.example.projecttc.utils.JFFParser;
+import com.example.projecttc.utils.ValidacaoAFD;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,173 +37,235 @@ public class AutomatoController {
     @Autowired
     private UniaoService uniaoService;
 
+    @Autowired
+    private DiferencaService diferencaService;
+
+    @Autowired
+    private ReversoService reversoService;
+
+    @Autowired
+    private IntersecaoService intersecaoService;
+
     @PostMapping("/complemento")
     public ResponseEntity<String> complemento(@RequestParam("file") MultipartFile file) {
         try {
-            // Validação do arquivo recebido
             if (file == null || !file.getOriginalFilename().endsWith(".jff")) {
                 return ResponseEntity.badRequest().body("Por favor, envie um arquivo .jff válido.");
             }
-
-            // Gerar o caminho de saída automático
             String fileName = new File(file.getOriginalFilename()).getName();
             String outputPath = "resultados/complemento/C_" + fileName;
-
-            // Salva os arquivos recebidos temporariamente
             File tempFile = File.createTempFile("automato", ".jff");
             file.transferTo(tempFile);
-            
-            // Parsing dos arquivos XML para criar os autômatos
             Automato automato = JFFParser.parse(tempFile);
-            
-            // Aplicar o complemento
             Automato complemento = complementoService.complemento(automato);
-
-            // Gravar o autômato complementado no caminho de saída especificado
             GravarXML gravador = new GravarXML();
             gravador.gravarAutomato((ArrayList<Estado>) complemento.getEstados(), (ArrayList<Transicao>) complemento.getTransicoes(), outputPath);
-
-            // Exibir o resultado formatado do autômato
             String resultadoFormatado = ExibirResultado.exibirResultado(complemento);
-
-            // Retornar o resultado formatado com o caminho de download
             return ResponseEntity.ok(resultadoFormatado + "\n\nComplemento de Autômato realizado com sucesso! Arquivo salvo em: " + outputPath);
-
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao complementar o autômato: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao complementar o autômato: " + e.getMessage());
         }
     }
 
     @PostMapping("/estrela")
     public ResponseEntity<String> estrela(@RequestParam("file") MultipartFile file) {
         try {
-            // Validação do arquivo recebido
             if (file == null || !file.getOriginalFilename().endsWith(".jff")) {
                 return ResponseEntity.badRequest().body("Por favor, envie um arquivo .jff válido.");
             }
-
-            // Gerar o caminho de saída automático
             String fileName = new File(file.getOriginalFilename()).getName();
             String outputPath = "resultados/estrela/E_" + fileName;
-
-            // Salva os arquivos recebidos temporariamente
             File tempFile = File.createTempFile("automato", ".jff");
             file.transferTo(tempFile);
-            
-            // Parsing dos arquivos XML para criar os autômatos
             Automato automato = JFFParser.parse(tempFile);
-
-            // Aplicar a operação de estrela no autômato
             Automato estrela = estrelaService.estrela(automato);
-
-            // Gravar o autômato complementado no caminho de saída especificado
             GravarXML gravador = new GravarXML();
             gravador.gravarAutomato((ArrayList<Estado>) estrela.getEstados(), (ArrayList<Transicao>) estrela.getTransicoes(), outputPath);
-
-            // Exibir o resultado formatado do autômato
             String resultadoFormatado = ExibirResultado.exibirResultado(estrela);
-
-            // Retornar o resultado formatado com o caminho de download
             return ResponseEntity.ok(resultadoFormatado + "\n\nOperação de estrela realizada com sucesso! Arquivo salvo em: " + outputPath);
-
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao aplicar a operação de estrela no autômato: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao aplicar a operação de estrela no autômato: " + e.getMessage());
         }
     }
 
     @PostMapping("/concatenacao")
-    public ResponseEntity<String> concatenacao(
-            @RequestParam("file1") MultipartFile file1,
-            @RequestParam("file2") MultipartFile file2) {
+    public ResponseEntity<String> concatenacao(@RequestParam("file1") MultipartFile file1, @RequestParam("file2") MultipartFile file2) {
         try {
-            // Validação dos arquivos
-            if (file1 == null || file2 == null ||
-                    !file1.getOriginalFilename().endsWith(".jff") ||
-                    !file2.getOriginalFilename().endsWith(".jff")) {
+            if (file1 == null || file2 == null || !file1.getOriginalFilename().endsWith(".jff") || !file2.getOriginalFilename().endsWith(".jff")) {
                 return ResponseEntity.badRequest().body("Por favor, envie dois arquivos .jff válidos.");
             }
-            
-            // Gerar o caminho de saída automático
             String fileName1 = new File(file1.getOriginalFilename()).getName();
             String fileName2 = new File(file2.getOriginalFilename()).getName();
             String outputPath = "resultados/concatenacao/K_" + fileName1 + "_" + fileName2;
-
-            // Salva os arquivos recebidos temporariamente
             File tempFile1 = File.createTempFile("automato1", ".jff");
             file1.transferTo(tempFile1);
             File tempFile2 = File.createTempFile("automato2", ".jff");
             file2.transferTo(tempFile2);
-            
-            // Parsing dos arquivos XML para criar os autômatos
             Automato automato1 = JFFParser.parse(tempFile1);
             Automato automato2 = JFFParser.parse(tempFile2);
-
-            // Realizar a concatenação dos autômatos usando o serviço
             Automato concatenacao = concatenacaoService.concatenacao(automato1, automato2);
-
-            // Gravar o autômato concatenado no caminho de saída especificado
             GravarXML gravador = new GravarXML();
             gravador.gravarAutomato((ArrayList<Estado>) concatenacao.getEstados(), (ArrayList<Transicao>) concatenacao.getTransicoes(), outputPath);
-
-            // Exibir o resultado formatado do autômato
             String resultadoFormatado = ExibirResultado.exibirResultado(concatenacao);
-
-            // Retornar o resultado formatado com o caminho de download
             return ResponseEntity.ok(resultadoFormatado + "\n\nAutômatos concatenados com sucesso! Arquivo salvo em: " + outputPath);
-
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao concatenar os autômatos: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao concatenar os autômatos: " + e.getMessage());
         }
     }
 
     @PostMapping("/uniao")
-    public ResponseEntity<String> uniao(
-            @RequestParam("file1") MultipartFile file1,
-            @RequestParam("file2") MultipartFile file2) {
+    public ResponseEntity<String> uniao(@RequestParam("file1") MultipartFile file1, @RequestParam("file2") MultipartFile file2) {
         try {
-            // Validação dos arquivos
-            if (file1 == null || file2 == null ||
-                    !file1.getOriginalFilename().endsWith(".jff") ||
-                    !file2.getOriginalFilename().endsWith(".jff")) {
+            if (file1 == null || file2 == null || !file1.getOriginalFilename().endsWith(".jff") || !file2.getOriginalFilename().endsWith(".jff")) {
                 return ResponseEntity.badRequest().body("Por favor, envie dois arquivos .jff válidos.");
             }
 
-            // Gerar o caminho de saída automático
             String fileName1 = new File(file1.getOriginalFilename()).getName();
             String fileName2 = new File(file2.getOriginalFilename()).getName();
             String outputPath = "resultados/uniao/U_" + fileName1 + "_" + fileName2;
 
-            // Salva os arquivos recebidos temporariamente
             File tempFile1 = File.createTempFile("automato1", ".jff");
             file1.transferTo(tempFile1);
             File tempFile2 = File.createTempFile("automato2", ".jff");
             file2.transferTo(tempFile2);
-            
-            // Parsing dos arquivos XML para criar os autômatos
+
             Automato automato1 = JFFParser.parse(tempFile1);
             Automato automato2 = JFFParser.parse(tempFile2);
 
-            // Realizar a união dos autômatos usando o serviço
-            Automato uniao = uniaoService.uniaoAFN(automato1, automato2);
+            Automato uniao;
 
-            // Gravar o autômato unido no caminho de saída especificado
+            // Verifica se ambos os autômatos são AFD (Determinísticos)
+            if (ValidacaoAFD.isAFD(automato1) && ValidacaoAFD.isAFD(automato2)) {
+                uniao = uniaoService.uniaoAFD(automato1, automato2);
+            } else {
+                uniao = uniaoService.uniaoAFN(automato1, automato2);
+            }
+
+            // Gravar o resultado da união
             GravarXML gravador = new GravarXML();
             gravador.gravarAutomato((ArrayList<Estado>) uniao.getEstados(), (ArrayList<Transicao>) uniao.getTransicoes(), outputPath);
 
-            // Exibir o resultado formatado do autômato
+            // Exibir o resultado
             String resultadoFormatado = ExibirResultado.exibirResultado(uniao);
-
-            // Retornar o resultado formatado com o caminho de download
             return ResponseEntity.ok(resultadoFormatado + "\n\nUnião dos autômatos realizada com sucesso! Arquivo salvo em: " + outputPath);
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao realizar a união dos autômatos: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao realizar a união dos autômatos: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/diferenca")
+    public ResponseEntity<String> diferenca(@RequestParam("file1") MultipartFile file1, @RequestParam("file2") MultipartFile file2) {
+        try {
+            if (file1 == null || file2 == null || !file1.getOriginalFilename().endsWith(".jff") || !file2.getOriginalFilename().endsWith(".jff")) {
+                return ResponseEntity.badRequest().body("Por favor, envie dois arquivos .jff válidos.");
+            }
+            String fileName1 = new File(file1.getOriginalFilename()).getName();
+            String fileName2 = new File(file2.getOriginalFilename()).getName();
+            String outputPath = "resultados/diferenca/D_" + fileName1 + "_" + fileName2;
+            File tempFile1 = File.createTempFile("automato1", ".jff");
+            file1.transferTo(tempFile1);
+            File tempFile2 = File.createTempFile("automato2", ".jff");
+            file2.transferTo(tempFile2);
+            Automato automato1 = JFFParser.parse(tempFile1);
+            Automato automato2 = JFFParser.parse(tempFile2);
+            Automato diferenca = diferencaService.diferenca(automato1, automato2);
+            GravarXML gravador = new GravarXML();
+            gravador.gravarAutomato((ArrayList<Estado>) diferenca.getEstados(), (ArrayList<Transicao>) diferenca.getTransicoes(), outputPath);
+            String resultadoFormatado = ExibirResultado.exibirResultado(diferenca);
+            return ResponseEntity.ok(resultadoFormatado + "\n\nDiferença realizada com sucesso! Arquivo salvo em: " + outputPath);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao realizar a diferença: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/reverso")
+    public ResponseEntity<String> reverso(@RequestParam("file") MultipartFile file) {
+        try {
+            if (file == null || !file.getOriginalFilename().endsWith(".jff")) {
+                return ResponseEntity.badRequest().body("Por favor, envie um arquivo .jff válido.");
+            }
+            String fileName = new File(file.getOriginalFilename()).getName();
+            String outputPath = "resultados/reverso/R_" + fileName;
+            File tempFile = File.createTempFile("automato", ".jff");
+            file.transferTo(tempFile);
+            Automato automato = JFFParser.parse(tempFile);
+            Automato reverso = reversoService.reverso(automato);
+            GravarXML gravador = new GravarXML();
+            gravador.gravarAutomato((ArrayList<Estado>) reverso.getEstados(), (ArrayList<Transicao>) reverso.getTransicoes(), outputPath);
+            String resultadoFormatado = ExibirResultado.exibirResultado(reverso);
+            return ResponseEntity.ok(resultadoFormatado + "\n\nReverso realizado com sucesso! Arquivo salvo em: " + outputPath);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao realizar o reverso: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/intersecao")
+    public ResponseEntity<String> intersecao(@RequestParam("file1") MultipartFile file1, @RequestParam("file2") MultipartFile file2) {
+        try {
+            if (file1 == null || file2 == null || !file1.getOriginalFilename().endsWith(".jff") || !file2.getOriginalFilename().endsWith(".jff")) {
+                return ResponseEntity.badRequest().body("Por favor, envie dois arquivos .jff válidos.");
+            }
+
+            String fileName1 = new File(file1.getOriginalFilename()).getName();
+            String fileName2 = new File(file2.getOriginalFilename()).getName();
+            String outputPath = "resultados/intersecao/I_" + fileName1 + "_" + fileName2;
+
+            File tempFile1 = File.createTempFile("automato1", ".jff");
+            file1.transferTo(tempFile1);
+            File tempFile2 = File.createTempFile("automato2", ".jff");
+            file2.transferTo(tempFile2);
+
+            Automato automato1 = JFFParser.parse(tempFile1);
+            Automato automato2 = JFFParser.parse(tempFile2);
+
+            Automato intersecao;
+
+            // Verifica se ambos os autômatos são AFD (Determinísticos)
+            if (ValidacaoAFD.isAFD(automato1) && ValidacaoAFD.isAFD(automato2)) {
+                intersecao = intersecaoService.intersecaoAFD(automato1, automato2);
+            } else {
+                intersecao = intersecaoService.intersecaoAFN(automato1, automato2);
+            }
+
+            // Gravar o resultado da interseção
+            GravarXML gravador = new GravarXML();
+            gravador.gravarAutomato((ArrayList<Estado>) intersecao.getEstados(), (ArrayList<Transicao>) intersecao.getTransicoes(), outputPath);
+
+            // Exibir o resultado
+            String resultadoFormatado = ExibirResultado.exibirResultado(intersecao);
+            return ResponseEntity.ok(resultadoFormatado + "\n\nInterseção realizada com sucesso! Arquivo salvo em: " + outputPath);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao realizar a interseção: " + e.getMessage());
+        }
+    }
+
+
+    @PostMapping("/diferenca-simetrica")
+    public ResponseEntity<String> diferencaSimetrica(@RequestParam("file1") MultipartFile file1, @RequestParam("file2") MultipartFile file2) {
+        try {
+            if (file1 == null || file2 == null || !file1.getOriginalFilename().endsWith(".jff") || !file2.getOriginalFilename().endsWith(".jff")) {
+                return ResponseEntity.badRequest().body("Por favor, envie dois arquivos .jff válidos.");
+            }
+            String fileName1 = new File(file1.getOriginalFilename()).getName();
+            String fileName2 = new File(file2.getOriginalFilename()).getName();
+            String outputPath = "resultados/diferenca-simetrica/DS_" + fileName1 + "_" + fileName2;
+            File tempFile1 = File.createTempFile("automato1", ".jff");
+            file1.transferTo(tempFile1);
+            File tempFile2 = File.createTempFile("automato2", ".jff");
+            file2.transferTo(tempFile2);
+            Automato automato1 = JFFParser.parse(tempFile1);
+            Automato automato2 = JFFParser.parse(tempFile2);
+            Automato diferencaSimetrica = diferencaService.diferencaSimetrica(automato1, automato2);
+            GravarXML gravador = new GravarXML();
+            gravador.gravarAutomato((ArrayList<Estado>) diferencaSimetrica.getEstados(), (ArrayList<Transicao>) diferencaSimetrica.getTransicoes(), outputPath);
+            String resultadoFormatado = ExibirResultado.exibirResultado(diferencaSimetrica);
+            return ResponseEntity.ok(resultadoFormatado + "\n\nDiferença Simétrica realizada com sucesso! Arquivo salvo em: " + outputPath);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao realizar a diferença simétrica: " + e.getMessage());
         }
     }
 }

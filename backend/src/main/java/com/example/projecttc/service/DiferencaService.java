@@ -18,7 +18,7 @@ public class DiferencaService {
     private ComplementoService complementoService;
 
     @Autowired
-    private InterseccaoService interseccaoService;
+    private IntersecaoService intersecaoService;
 
     @Autowired
     private UniaoService uniaoService;
@@ -26,7 +26,7 @@ public class DiferencaService {
     public Automato diferenca(Automato automato1, Automato automato2) {
         if (ValidacaoAFD.isAFD(automato1) && ValidacaoAFD.isAFD(automato2)) {
             Automato complemento = complementoService.complemento(automato2);
-            return interseccaoService.interseccaoAFD(automato1, complemento);
+            return intersecaoService.intersecaoAFD(automato1, complemento);
         } else {
             logger.error("Não é possível fazer a diferença entre AFN e AFD. Converta para AFD.");
             throw new IllegalArgumentException("Não é possível fazer a diferença entre AFN e AFD. Converta para AFD.");
