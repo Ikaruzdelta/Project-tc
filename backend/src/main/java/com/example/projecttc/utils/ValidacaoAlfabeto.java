@@ -11,9 +11,7 @@ public class ValidacaoAlfabeto {
             auxiliar.add(simbolo);
         }
         for(String simbolo : set2){
-            if(auxiliar.contains(simbolo)){
-                System.out.println("Igual.");
-            }else{
+            if(!auxiliar.contains(simbolo)){
                 return false;
             }
         }

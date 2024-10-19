@@ -111,17 +111,19 @@ public class UniaoService {
         if(ValidacaoAlfabeto.compararAlfabeto(automato1.getAlfabeto(),automato2.getAlfabeto())) {
             ArrayList<Estado> novosEstados = new ArrayList<Estado>();
             ArrayList<Transicao> novasTransicoes = new ArrayList<Transicao>();
-
-            CompletarAfd.deixarAFDCompleto(automato1);
-            CompletarAfd.deixarAFDCompleto(automato2);
-
+            if(!CompletarAfd.isAFDCompleto(automato1)){
+                CompletarAfd.deixarAFDCompleto(automato1);
+            }
+            if(!CompletarAfd.isAFDCompleto(automato2)){
+                CompletarAfd.deixarAFDCompleto(automato2);
+            }
             //percorre todos os estados dos 2 automatos para realizar as combinações
             for (Estado estado1 : automato1.getEstados()) {
                 for (Estado estado2 : automato2.getEstados()) {
                     if (!estado1.isInicial() || !estado2.isInicial()) {
                         //verifica se são finais
                         if (estado1.isFinal() || estado2.isFinal()) {
-                            novosEstados.add(new Estado(novosEstados.size(), estado1.getNome() + ";" + estado2.getNome(),  true, false, estado1.getX(), estado1.getY()));
+                            novosEstados.add(new Estado(novosEstados.size(), estado1.getNome() + ";" + estado2.getNome(),  false, true, estado1.getX(), estado1.getY()));
                         } else {
                             novosEstados.add(new Estado(novosEstados.size(),estado1.getNome() + ";" + estado2.getNome(), false, false, estado1.getX(), estado1.getY()));
                         }
@@ -132,7 +134,7 @@ public class UniaoService {
                             novosEstados.add(new Estado(novosEstados.size(), estado1.getNome() + ";" + estado2.getNome(), true, true, estado1.getX(), estado1.getY()));
                             //eh inicial mas nao eh final
                         } else {
-                            novosEstados.add(new Estado(novosEstados.size(), estado1.getNome() + ";" + estado2.getNome(), false, true, estado1.getX(), estado1.getY()));
+                            novosEstados.add(new Estado(novosEstados.size(), estado1.getNome() + ";" + estado2.getNome(), true, false, estado1.getX(), estado1.getY()));
                         }
                     }
                 }
@@ -140,43 +142,25 @@ public class UniaoService {
 
             // Percorre todas as combinações dos novos estados
             for (Estado estado : novosEstados) {
-                System.out.println("Combinação dos estados: " + estado.getNome());
 
                 String[] nomes = estado.getNome().split(";"); // Dividir o nome do estado combinado para recuperar os dois estados originais
-
                 //Pegar a referencia de cada um individualmente em suas respectivas listas
                 Estado estado1 = automato1.getEstados().stream().filter(e -> e.getNome().equals(nomes[0])).findFirst().get();
                 Estado estado2 = automato2.getEstados().stream().filter(e -> e.getNome().equals(nomes[1])).findFirst().get();
-                System.out.println("Estado 1: " + estado1.getNome());
-                System.out.println("Estado 2: " + estado2.getNome());
+            
                 //se achou
                 if (estado1 != null && estado2 != null) {
                     // Pega as transições específicas de cada estado e joga num array para saber se está atualizado
                     ArrayList<Transicao> transicoesEstado1 = (ArrayList<Transicao>) estado1.getTransicoes();
-                    System.out.println("Transições do estado " + estado1.getNome());
-                    for (Transicao t : transicoesEstado1) {
-                        System.out.println(" " + t.getOrigem().getNome() + " --" + t.getSimbolo() + " --> " + t.getDestino().getNome());
-                    }
-
                     ArrayList<Transicao> transicoesEstado2 =(ArrayList<Transicao>) estado2.getTransicoes();
-                    System.out.println("Transições do estado " + estado2.getNome());
-                    for (Transicao t : transicoesEstado2) {
-                        System.out.println(" " + t.getOrigem().getNome() + " --" + t.getSimbolo() + " --> " + t.getDestino().getNome());
-                    }
-                    System.out.println("\n\n");
+
                     //commprara as transições entre os dois estados
                     for (Transicao transicao1 : transicoesEstado1) {
                         for (Transicao transicao2 : transicoesEstado2) {
-
-                            System.out.println(" " + transicao1.getOrigem().getNome() + " - " + transicao1.getSimbolo() + " -> " + transicao1.getDestino().getNome());
-                            System.out.println(" " + transicao2.getOrigem().getNome() + " - " + transicao2.getSimbolo() + " -> " + transicao2.getDestino().getNome());
-
                             //se as duas transições são iguais
                             if (transicao1.getSimbolo().equals(transicao2.getSimbolo())) {
-                                System.out.println("Entrou! Símbolo: " + transicao1.getSimbolo());
-
                                 //vejo pra onde vai individualmente e retornar a combinação a partir das combinações existentes
-                                Estado estadoDestino = encontrarNovoEstado(novosEstados, transicao1.getOrigem(), transicao2.getDestino());
+                                Estado estadoDestino = encontrarNovoEstado(novosEstados, transicao1.getDestino(), transicao2.getDestino());
                                 if (estadoDestino != null) {
                                     novasTransicoes.add(new Transicao(estado, estadoDestino, transicao1.getSimbolo()));
                                 }
@@ -196,7 +180,6 @@ public class UniaoService {
         for (Estado estado : novosEstados) {
             // Verifica se o estado novo existe com base na combinação dos nomes dos dois estados originais
             if (estado.getNome().equals(estado1.getNome() + ";"+estado2.getNome())) {
-                System.out.println("entrou!");
                 return estado;
             }
         }
