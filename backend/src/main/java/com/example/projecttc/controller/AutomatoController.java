@@ -20,6 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/automato")
@@ -45,6 +47,9 @@ public class AutomatoController {
 
     @Autowired
     private IntersecaoService intersecaoService;
+
+    @Autowired
+    private HomomorfismoService homomorfismoService;
 
     @PostMapping("/complemento")
     public ResponseEntity<String> complemento(@RequestParam("file") MultipartFile file) {
@@ -266,6 +271,33 @@ public class AutomatoController {
             return ResponseEntity.ok(resultadoFormatado + "\n\nDiferença Simétrica realizada com sucesso! Arquivo salvo em: " + outputPath);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao realizar a diferença simétrica: " + e.getMessage());
+        }
+    }
+    @PostMapping("/homomorfismo")
+    public ResponseEntity<String> homomorfismo(@RequestParam("file") MultipartFile file) {
+        try {
+            if (file == null || !file.getOriginalFilename().endsWith(".jff")) {
+                return ResponseEntity.badRequest().body("Por favor, envie um arquivo .jff válido.");
+            }
+
+            String fileName = new File(file.getOriginalFilename()).getName();
+            String outputPath = "resultados/homomorfismo/H_" + fileName;
+
+            File tempFile = File.createTempFile("automato", ".jff");
+            file.transferTo(tempFile);
+
+            Automato automato = JFFParser.parse(tempFile);
+            
+            Automato homomorfismo = homomorfismoService.homomorfismo(automato);
+
+            GravarXML gravador = new GravarXML();
+            gravador.gravarAutomato((ArrayList<Estado>) homomorfismo.getEstados(), (ArrayList<Transicao>) homomorfismo.getTransicoes(), outputPath);
+
+            String resultadoFormatado = ExibirResultado.exibirResultado(homomorfismo);
+            return ResponseEntity.ok(resultadoFormatado + "\n\nHomomorfismo aplicado com sucesso! Arquivo salvo em: " + outputPath);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao aplicar o homomorfismo no autômato: " + e.getMessage());
         }
     }
 }

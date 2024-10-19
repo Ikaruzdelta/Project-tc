@@ -5,6 +5,7 @@ document.querySelectorAll(".button-group button").forEach((button) => {
     document.getElementById("default-message").style.display = "none"; // Esconder a mensagem padrão
   });
 });
+
 // Função para exibir o formulário correspondente
 function exibirFormulario(operation) {
   const formContainer = document.getElementById("form-container");
@@ -17,6 +18,7 @@ function exibirFormulario(operation) {
     case "intersecao":
     case "diferenca":
     case "diferenca-simetrica":
+    case "concatenacao":
       formHtml = `
                 <h2>${
                   operation.charAt(0).toUpperCase() + operation.slice(1)
@@ -24,6 +26,7 @@ function exibirFormulario(operation) {
                 <input type="file" id="file1" accept=".jff" required>
                 <input type="file" id="file2" accept=".jff" required>
                 <button onclick="aplicarOperacao('${operation}')">Aplicar ${operation}</button>
+                <div id="${operation}Result"></div>
             `;
       break;
     case "complemento":
@@ -36,25 +39,20 @@ function exibirFormulario(operation) {
                 } de Automato</h2>
                 <input type="file" id="file" accept=".jff" required>
                 <button onclick="aplicarOperacao('${operation}')">Aplicar ${operation}</button>
-            `;
-      break;
-    case "concatenacao":
-      formHtml = `
-                <h2>Concatenar Automatos</h2>
-                <input type="file" id="file1" accept=".jff" required>
-                <input type="file" id="file2" accept=".jff" required>
-                <button onclick="aplicarOperacao('${operation}')">Concatenar</button>
+                <div id="${operation}Result"></div>
             `;
       break;
   }
 
   formContainer.innerHTML = formHtml;
 }
+
 function aplicarOperacao(operation) {
   const formData = new FormData();
 
   if (
     operation === "uniao" ||
+    operation === "concatenacao" ||
     operation === "intersecao" ||
     operation === "diferenca" ||
     operation === "diferenca-simetrica"
@@ -68,47 +66,10 @@ function aplicarOperacao(operation) {
     formData.append("file", fileInput.files[0]);
   }
 
-  enviarArquivo(formData, `http://localhost:8080/api/automato/${operation}`);
+  enviarArquivo(formData, `http://localhost:8080/api/automato/${operation}`, operation);
 }
-///////////////////////////////
-// Função para enviar arquivos para o servidor e exibir o resultado
-// function enviarArquivo(formData, url, resultElement) {
-//   // Limpar o conteúdo anterior antes de começar
-//   resultElement.textContent = "Processando...";
 
-//   fetch(url, {
-//     method: "POST",
-//     body: formData,
-//   })
-//     .then((response) => {
-//       if (response.ok) {
-//         return response.text();
-//       } else {
-//         return response.text().then((text) => {
-//           throw new Error(text);
-//         });
-//       }
-//     })
-//     .then((data) => {
-//       resultElement.textContent = data; // Exibe o resultado do automato retornado pela API
-//       // Adicionar link para download se o caminho do arquivo estiver presente
-//       const regex = /Arquivo salvo em: (.*)/;
-//       const match = data.match(regex);
-//       if (match) {
-//         const filePath = match[1];
-//         const downloadLink = document.createElement("a");
-//         downloadLink.href = "http://localhost:8080/" + filePath; // Ajuste conforme o backend
-//         downloadLink.textContent = "Baixar XML";
-//         downloadLink.download = filePath.split("/").pop();
-//         resultElement.appendChild(document.createElement("br"));
-//         resultElement.appendChild(downloadLink);
-//       }
-//     })
-//     .catch((error) => {
-//       resultElement.textContent = "Erro: " + error.message;
-//     });
-// }
-function enviarArquivo(formData, url) {
+function enviarArquivo(formData, url, operation) {
   fetch(url, {
     method: "POST",
     body: formData,
@@ -122,46 +83,43 @@ function enviarArquivo(formData, url) {
       }
     })
     .then((data) => {
-      document.getElementById("xmlContent").textContent = JSON.stringify(
+      document.getElementById(`${operation}Result`).textContent = JSON.stringify(
         data,
         null,
         2
       );
-      // Aqui você deve chamar a função para exportar o XML
-      exportarXML(data);
     })
     .catch((error) => {
-      document.getElementById("xmlContent").textContent =
+      document.getElementById(`${operation}Result`).textContent =
         "Erro: " + error.message;
     });
 }
-
 
 // Complementar Automato
 document
   .getElementById("complementoForm")
   .addEventListener("submit", function (e) {
-    e.preventDefault(); // Prevenir o comportamento padrão de submit do formulário
+    e.preventDefault();
     const file = document.getElementById("fileComplemento").files[0];
     const formData = new FormData();
     formData.append("file", file);
     enviarArquivo(
       formData,
       "http://localhost:8080/api/automato/complemento",
-      document.getElementById("complementoResult")
+      "complemento"
     );
   });
 
 // Estrela de Automato
 document.getElementById("estrelaForm").addEventListener("submit", function (e) {
-  e.preventDefault(); // Prevenir o comportamento padrão de submit do formulário
+  e.preventDefault();
   const file = document.getElementById("fileEstrela").files[0];
   const formData = new FormData();
   formData.append("file", file);
   enviarArquivo(
     formData,
     "http://localhost:8080/api/automato/estrela",
-    document.getElementById("estrelaResult")
+    "estrela"
   );
 });
 
@@ -169,7 +127,7 @@ document.getElementById("estrelaForm").addEventListener("submit", function (e) {
 document
   .getElementById("concatenacaoForm")
   .addEventListener("submit", function (e) {
-    e.preventDefault(); // Prevenir o comportamento padrão de submit do formulário
+    e.preventDefault();
     const file1 = document.getElementById("file1").files[0];
     const file2 = document.getElementById("file2").files[0];
     const formData = new FormData();
@@ -178,13 +136,13 @@ document
     enviarArquivo(
       formData,
       "http://localhost:8080/api/automato/concatenacao",
-      document.getElementById("concatResult")
+      "concatenacao"
     );
   });
 
 // União de Automatos
 document.getElementById("uniaoForm").addEventListener("submit", function (e) {
-  e.preventDefault(); // Prevenir o comportamento padrão de submit do formulário
+  e.preventDefault();
   const file1 = document.getElementById("fileUniao1").files[0];
   const file2 = document.getElementById("fileUniao2").files[0];
   const formData = new FormData();
@@ -193,6 +151,19 @@ document.getElementById("uniaoForm").addEventListener("submit", function (e) {
   enviarArquivo(
     formData,
     "http://localhost:8080/api/automato/uniao",
-    document.getElementById("uniaoResult")
+    "uniao"
+  );
+});
+
+// Homomorfismo
+document.getElementById("homomorfismoForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const file = document.getElementById("fileHomomorfismo").files[0];
+  const formData = new FormData();
+  formData.append("file", file);
+  enviarArquivo(
+    formData,
+    "http://localhost:8080/api/automato/homomorfismo",
+    "homomorfismo"
   );
 });

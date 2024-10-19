@@ -8,8 +8,6 @@ import com.example.projecttc.utils.CompletarAfd;
 import com.example.projecttc.utils.ValidacaoAFD;
 import com.example.projecttc.utils.ValidacaoAlfabeto;
 
-import java.lang.reflect.Array;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
