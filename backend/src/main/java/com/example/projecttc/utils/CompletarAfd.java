@@ -15,16 +15,11 @@ public class CompletarAfd {
                 for (Transicao transicao : estado.getTransicoes()) {
 
                     if (transicao.getSimbolo().equals(simbolo)) {
-<<<<<<< HEAD
+
                         temTransicaoParaSimbolo = true;
                     }
+               
                 }
-                // Se não houver transição para algum símbolo do alfabeto, o AFD não é completo
-=======
-                        temTransicaoParaSimbolo = true;;
-                    }
-                }
->>>>>>> origin/main
                 if (!temTransicaoParaSimbolo) {
 
                     return false;

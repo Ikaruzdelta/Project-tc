@@ -3,9 +3,13 @@ package com.example.projecttc.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.projecttc.model.Automato;
+import com.example.projecttc.model.Estado;
 import com.example.projecttc.utils.CompletarAfd;
 import com.example.projecttc.utils.ValidacaoAFD;
 import com.example.projecttc.utils.ValidacaoAlfabeto;
+
+import java.lang.reflect.Array;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +75,14 @@ public class DiferencaService {
         }
 
         // Realizar a união dos resultados das duas diferenças
+        for (Estado estado : automato3.getEstados()){
+            estado.setNome("q"+ estado.getId());
+        }
+        for (Estado estado : automato4.getEstados()){
+            estado.setNome("q"+ estado.getId());
+        }
+        EstadoService.carregarTransicoesEstado(automato3);
+        EstadoService.carregarTransicoesEstado(automato4);
         Automato resultadoFinal = uniaoService.uniaoAFD(automato3, automato4);
         logger.info("Diferença simétrica realizada com sucesso.");
         return resultadoFinal;
