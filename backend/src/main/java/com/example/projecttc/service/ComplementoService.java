@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ComplementoService {
 
-    public Automato aplicarComplemento(Automato automato) {
+    public Automato complemento(Automato automato) {
         try {
             // Verificar se é um AFD antes de aplicar o complemento
             if (!ValidacaoAFD.isAFD(automato)) {

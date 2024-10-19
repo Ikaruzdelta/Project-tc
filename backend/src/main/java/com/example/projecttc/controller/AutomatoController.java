@@ -7,6 +7,7 @@ import com.example.projecttc.service.ComplementoService;
 import com.example.projecttc.service.ConcatenacaoService;
 import com.example.projecttc.service.EstrelaService;
 import com.example.projecttc.service.UniaoService;
+import com.example.projecttc.utils.ExibirResultado;
 import com.example.projecttc.utils.GravarXML;
 import com.example.projecttc.utils.JFFParser;
 
@@ -53,17 +54,22 @@ public class AutomatoController {
             // Salva os arquivos recebidos temporariamente
             File tempFile = File.createTempFile("automato", ".jff");
             file.transferTo(tempFile);
+            
             // Parsing dos arquivos XML para criar os autômatos
             Automato automato = JFFParser.parse(tempFile);
+            
             // Aplicar o complemento
-            Automato complemento = complementoService.aplicarComplemento(automato);
+            Automato complemento = complementoService.complemento(automato);
 
-            // Grava o autômato complementado no caminho de saída especificado
+            // Gravar o autômato complementado no caminho de saída especificado
             GravarXML gravador = new GravarXML();
             gravador.gravarAutomato((ArrayList<Estado>) complemento.getEstados(), (ArrayList<Transicao>) complemento.getTransicoes(), outputPath);
 
-            // Retornar uma mensagem de sucesso com o caminho de saída
-            return ResponseEntity.ok("Complemento de Autômato realizado com sucesso! Arquivo salvo em: " + outputPath);
+            // Exibir o resultado formatado do autômato
+            String resultadoFormatado = ExibirResultado.exibirResultado(complemento);
+
+            // Retornar o resultado formatado com o caminho de download
+            return ResponseEntity.ok(resultadoFormatado + "\n\nComplemento de Autômato realizado com sucesso! Arquivo salvo em: " + outputPath);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -87,19 +93,22 @@ public class AutomatoController {
             // Salva os arquivos recebidos temporariamente
             File tempFile = File.createTempFile("automato", ".jff");
             file.transferTo(tempFile);
+            
             // Parsing dos arquivos XML para criar os autômatos
             Automato automato = JFFParser.parse(tempFile);
 
             // Aplicar a operação de estrela no autômato
-            Automato estrela = estrelaService.aplicarEstrela(automato);
+            Automato estrela = estrelaService.estrela(automato);
 
-            // Grava o autômato complementado no caminho de saída especificado
+            // Gravar o autômato complementado no caminho de saída especificado
             GravarXML gravador = new GravarXML();
             gravador.gravarAutomato((ArrayList<Estado>) estrela.getEstados(), (ArrayList<Transicao>) estrela.getTransicoes(), outputPath);
 
+            // Exibir o resultado formatado do autômato
+            String resultadoFormatado = ExibirResultado.exibirResultado(estrela);
 
-            // Retornar uma mensagem de sucesso com o caminho de saída
-            return ResponseEntity.ok("Operação de estrela realizada com sucesso! Arquivo salvo em: " + outputPath);
+            // Retornar o resultado formatado com o caminho de download
+            return ResponseEntity.ok(resultadoFormatado + "\n\nOperação de estrela realizada com sucesso! Arquivo salvo em: " + outputPath);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -130,19 +139,23 @@ public class AutomatoController {
             file1.transferTo(tempFile1);
             File tempFile2 = File.createTempFile("automato2", ".jff");
             file2.transferTo(tempFile2);
+            
             // Parsing dos arquivos XML para criar os autômatos
             Automato automato1 = JFFParser.parse(tempFile1);
             Automato automato2 = JFFParser.parse(tempFile2);
 
             // Realizar a concatenação dos autômatos usando o serviço
-            Automato concatenacao = concatenacaoService.concatenar(automato1,automato2);
+            Automato concatenacao = concatenacaoService.concatenacao(automato1, automato2);
 
-            // Grava o autômato complementado no caminho de saída especificado
+            // Gravar o autômato concatenado no caminho de saída especificado
             GravarXML gravador = new GravarXML();
             gravador.gravarAutomato((ArrayList<Estado>) concatenacao.getEstados(), (ArrayList<Transicao>) concatenacao.getTransicoes(), outputPath);
- 
-            // Retornar uma mensagem de sucesso com o caminho de saída
-            return ResponseEntity.ok("Autômatos concatenados com sucesso! Arquivo salvo em: " + outputPath);
+
+            // Exibir o resultado formatado do autômato
+            String resultadoFormatado = ExibirResultado.exibirResultado(concatenacao);
+
+            // Retornar o resultado formatado com o caminho de download
+            return ResponseEntity.ok(resultadoFormatado + "\n\nAutômatos concatenados com sucesso! Arquivo salvo em: " + outputPath);
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -172,18 +185,23 @@ public class AutomatoController {
             file1.transferTo(tempFile1);
             File tempFile2 = File.createTempFile("automato2", ".jff");
             file2.transferTo(tempFile2);
+            
             // Parsing dos arquivos XML para criar os autômatos
             Automato automato1 = JFFParser.parse(tempFile1);
             Automato automato2 = JFFParser.parse(tempFile2);
 
             // Realizar a união dos autômatos usando o serviço
-            Automato uniao = uniaoService.UnirAFN(automato1,automato2);
-            // Grava o autômato complementado no caminho de saída especificado
+            Automato uniao = uniaoService.uniaoAFN(automato1, automato2);
+
+            // Gravar o autômato unido no caminho de saída especificado
             GravarXML gravador = new GravarXML();
             gravador.gravarAutomato((ArrayList<Estado>) uniao.getEstados(), (ArrayList<Transicao>) uniao.getTransicoes(), outputPath);
 
-            // Retornar uma mensagem de sucesso com o caminho de saída
-            return ResponseEntity.ok("União dos autômatos realizada com sucesso! Arquivo salvo em: " + outputPath);
+            // Exibir o resultado formatado do autômato
+            String resultadoFormatado = ExibirResultado.exibirResultado(uniao);
+
+            // Retornar o resultado formatado com o caminho de download
+            return ResponseEntity.ok(resultadoFormatado + "\n\nUnião dos autômatos realizada com sucesso! Arquivo salvo em: " + outputPath);
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

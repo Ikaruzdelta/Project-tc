@@ -4,142 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manipulação de Autômatos JFF</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .container {
-            width: 400px;
-            margin: 0 auto;
-        }
-        .result {
-            margin-top: 20px;
-        }
-        h2 {
-            margin-top: 30px;
-        }
-        pre {
-            background-color: #f4f4f4;
-            padding: 10px;
-            border-radius: 5px;
-        }
-    </style>
+    <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
 <div class="container">
-    <h1>Manipulação de Autômatos (.jff)</h1>
+    <div>
+        <h1>Projeto Teoria da Computação</h1>
+    </div>
+
+     <div class="button-group">
+         <button data-operation="uniao">União</button>
+        <button data-operation="intersecao">Interseção</button>
+        <button data-operation="concatenacao">Concatenação</button>
+        <button data-operation="complemento">Complemento</button>
+        <button data-operation="estrela">Estrela</button>
+        <button data-operation="diferenca">Diferença</button>
+        <button data-operation="reverso">Reverso</button>
+        <button data-operation="homomorfismo">Homomorfismo</button>
+        <button data-operation="diferenca-simetrica">Diferença Simétrica</button>
+     </div>
+   
+     <div id="form-container" class="form-container" style="margin-top: 20px;">
+         <div id="default-message" style="font-size: 20px; color: black;">Escolha sua operação</div>
+     </div>
+
     
-    <h2>Complementar Automato (.jff)</h2>
-    <form id="complementoForm">
-        <input type="file" id="fileComplemento" name="file" accept=".jff" required>
-        <button type="submit">Aplicar Complemento</button>
-    </form>
-    <div class="result">
-        <h2>Resultado Complemento</h2>
-        <pre id="complementoResult">Nenhum arquivo enviado ainda.</pre>
-    </div>
+        <div id="xml-container"></div>
+        <div class="container-review">
+            <h3>Visualização do Arquivo XML Gerado:</h3>
+        </div>
+       
+        <!-- <pre id="xmlContent" style="border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll;"></pre> -->
+           
+      <button id="exportBtn">Exportar XML</button>
+      </div>
 
-    <h2>Estrela de Automato (.jff)</h2>
-    <form id="estrelaForm">
-        <input type="file" id="fileEstrela" name="file" accept=".jff" required>
-        <button type="submit">Aplicar Estrela</button>
-    </form>
-    <div class="result">
-        <h2>Resultado Estrela</h2>
-        <pre id="estrelaResult">Nenhum arquivo enviado ainda.</pre>
-    </div>
-
-    <h2>Concatenar Automatos (.jff)</h2>
-    <form id="concatenacaoForm">
-        <label for="file1">Arquivo JFF 1:</label>
-        <input type="file" id="file1" name="file1" accept=".jff" required><br><br>
-        <label for="file2">Arquivo JFF 2:</label>
-        <input type="file" id="file2" name="file2" accept=".jff" required><br><br>
-        <button type="submit">Concatenar</button>
-    </form>
-    <div class="result">
-        <h2>Resultado Concatenar</h2>
-        <pre id="concatResult">Nenhum arquivo enviado ainda.</pre>
-    </div>
-
-    <h2>União de Automatos (.jff)</h2>
-    <form id="uniaoForm">
-        <label for="fileUniao1">Arquivo JFF 1:</label>
-        <input type="file" id="fileUniao1" name="file1" accept=".jff" required><br><br>
-        <label for="fileUniao2">Arquivo JFF 2:</label>
-        <input type="file" id="fileUniao2" name="file2" accept=".jff" required><br><br>
-        <button type="submit">Unir</button>
-    </form>
-    <div class="result">
-        <h2>Resultado União</h2>
-        <pre id="uniaoResult">Nenhum arquivo enviado ainda.</pre>
-    </div>
+   
 </div>
 
-<script>
-    // Função para enviar arquivos para o servidor
-    function enviarArquivo(formData, url, resultElement) {
-        fetch(url, {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => {
-                if (response.ok) {
-                    return response.text();
-                } else {
-                    return response.text().then((text) => {
-                        throw new Error(text);
-                    });
-                }
-            })
-            .then(data => {
-                resultElement.textContent = 'Sucesso: ' + data;
-            })
-            .catch(error => {
-                resultElement.textContent = 'Erro: ' + error.message;
-            });
-    }
-
-    // Complementar Automato
-    document.getElementById('complementoForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const file = document.getElementById('fileComplemento').files[0];
-        const formData = new FormData();
-        formData.append('file', file);
-        enviarArquivo(formData, 'http://localhost:8080/api/automato/complemento', document.getElementById('complementoResult'));
-    });
-
-    // Estrela de Automato
-    document.getElementById('estrelaForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const file = document.getElementById('fileEstrela').files[0];
-        const formData = new FormData();
-        formData.append('file', file);
-        enviarArquivo(formData, 'http://localhost:8080/api/automato/estrela', document.getElementById('estrelaResult'));
-    });
-
-    // Concatenar Automatos
-    document.getElementById('concatenacaoForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const file1 = document.getElementById('file1').files[0];
-        const file2 = document.getElementById('file2').files[0];
-        const formData = new FormData();
-        formData.append('file1', file1);
-        formData.append('file2', file2);
-        enviarArquivo(formData, 'http://localhost:8080/api/automato/concatenacao', document.getElementById('concatResult'));
-    });
-
-    // União de Automatos
-    document.getElementById('uniaoForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const file1 = document.getElementById('fileUniao1').files[0];
-        const file2 = document.getElementById('fileUniao2').files[0];
-        const formData = new FormData();
-        formData.append('file1', file1);
-        formData.append('file2', file2);
-        enviarArquivo(formData, 'http://localhost:8080/api/automato/uniao', document.getElementById('uniaoResult'));
-    });
-</script>
+<script src="./script/script.js"></script>
 </body>
 </html>
