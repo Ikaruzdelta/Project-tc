@@ -3,7 +3,7 @@ package com.example.projecttc.utils;
 import java.util.ArrayList;
 import java.util.Set;
 
-public class VerificarAlfabeto {
+public class ValidacaoAlfabeto {
 
      public static boolean compararAlfabeto(Set<String> set, Set<String> set2){
         ArrayList<String> auxiliar = new ArrayList<String>();
