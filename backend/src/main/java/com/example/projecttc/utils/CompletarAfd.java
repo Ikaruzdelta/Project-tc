@@ -15,8 +15,10 @@ public class CompletarAfd {
                 for (Transicao transicao : estado.getTransicoes()) {
 
                     if (transicao.getSimbolo().equals(simbolo)) {
-                        temTransicaoParaSimbolo = true;;
+
+                        temTransicaoParaSimbolo = true;
                     }
+               
                 }
                 if (!temTransicaoParaSimbolo) {
 
