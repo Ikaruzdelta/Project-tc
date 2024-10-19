@@ -11,15 +11,20 @@ public class CompletarAfd {
             // Verifica se para cada símbolo do alfabeto, há uma transição correspondente
             for (String simbolo : automato.getAlfabeto()) {
                 boolean temTransicaoParaSimbolo = false;
-
                 // Procura uma transição que corresponda ao símbolo
                 for (Transicao transicao : estado.getTransicoes()) {
 
                     if (transicao.getSimbolo().equals(simbolo)) {
+<<<<<<< HEAD
                         temTransicaoParaSimbolo = true;
                     }
                 }
                 // Se não houver transição para algum símbolo do alfabeto, o AFD não é completo
+=======
+                        temTransicaoParaSimbolo = true;;
+                    }
+                }
+>>>>>>> origin/main
                 if (!temTransicaoParaSimbolo) {
 
                     return false;

@@ -35,7 +35,7 @@ public class ReversoService {
         ajustarEstadosIniciaisEFinais(estadosOriginais, estadosReverso);
 
         // Verifica se há mais de um estado final e ajusta se necessário
-        adicionarEstadoInicialComTransicoesLambda(estadosReverso, transicoesReverso);
+        adicionarEstadoInicialComTransicoesLambda(estadosOriginais,estadosReverso, transicoesReverso);
 
         return new Automato("reverso", estadosReverso, transicoesReverso);
     }
@@ -74,13 +74,13 @@ public class ReversoService {
         return null;
     }
 
-    private void adicionarEstadoInicialComTransicoesLambda(ArrayList<Estado> estadosReverso, ArrayList<Transicao> transicoesReverso) {
+    private void adicionarEstadoInicialComTransicoesLambda(ArrayList<Estado> estadosOriginais,ArrayList<Estado> estadosReverso, ArrayList<Transicao> transicoesReverso) {
         int numFinais = 0;
         ArrayList<Estado> estadosFinais = new ArrayList<>();
         Estado estadoInicialOriginal = null;
 
         // Identifica os estados finais e o estado inicial
-        for (Estado e : estadosReverso) {
+        for (Estado e : estadosOriginais) {
             if (e.isFinal()) {
                 numFinais++;
                 estadosFinais.add(e); // Adiciona o estado final à lista
