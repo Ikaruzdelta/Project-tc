@@ -11,7 +11,7 @@ import com.example.projecttc.model.Transicao;
 public class ConcatenacaoService {
 
     // Método principal para concatenar dois autômatos
-    public Automato concatenar(Automato automato1, Automato automato2) throws Exception {
+    public Automato concatenacao(Automato automato1, Automato automato2) throws Exception {
         int spacing = 200; // Define o espaçamento entre os autômatos
         
         // ArrayLists que serão preenchidos com os dados dos autômatos

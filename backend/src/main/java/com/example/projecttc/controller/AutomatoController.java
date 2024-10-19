@@ -59,7 +59,7 @@ public class AutomatoController {
             Automato automato = JFFParser.parse(tempFile);
             
             // Aplicar o complemento
-            Automato complemento = complementoService.aplicarComplemento(automato);
+            Automato complemento = complementoService.complemento(automato);
 
             // Gravar o autômato complementado no caminho de saída especificado
             GravarXML gravador = new GravarXML();
@@ -98,7 +98,7 @@ public class AutomatoController {
             Automato automato = JFFParser.parse(tempFile);
 
             // Aplicar a operação de estrela no autômato
-            Automato estrela = estrelaService.aplicarEstrela(automato);
+            Automato estrela = estrelaService.estrela(automato);
 
             // Gravar o autômato complementado no caminho de saída especificado
             GravarXML gravador = new GravarXML();
@@ -145,7 +145,7 @@ public class AutomatoController {
             Automato automato2 = JFFParser.parse(tempFile2);
 
             // Realizar a concatenação dos autômatos usando o serviço
-            Automato concatenacao = concatenacaoService.concatenar(automato1, automato2);
+            Automato concatenacao = concatenacaoService.concatenacao(automato1, automato2);
 
             // Gravar o autômato concatenado no caminho de saída especificado
             GravarXML gravador = new GravarXML();
@@ -191,7 +191,7 @@ public class AutomatoController {
             Automato automato2 = JFFParser.parse(tempFile2);
 
             // Realizar a união dos autômatos usando o serviço
-            Automato uniao = uniaoService.UnirAFN(automato1, automato2);
+            Automato uniao = uniaoService.uniaoAFN(automato1, automato2);
 
             // Gravar o autômato unido no caminho de saída especificado
             GravarXML gravador = new GravarXML();

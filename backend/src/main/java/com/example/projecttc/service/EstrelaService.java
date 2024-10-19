@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 @Service
 public class EstrelaService {
-    public Automato aplicarEstrela(Automato automato) throws Exception {
+    public Automato estrela(Automato automato) throws Exception {
         // ArrayLists que serão preenchidos com os dados dos autômatos
         ArrayList<Estado> lstEstados = (ArrayList<Estado>) automato.getEstados();
         ArrayList<Transicao> lstTransicoes = (ArrayList<Transicao>) automato.getTransicoes();

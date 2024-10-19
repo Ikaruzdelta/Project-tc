@@ -7,11 +7,11 @@ import com.example.projecttc.model.Automato;
 import com.example.projecttc.model.Estado;
 import com.example.projecttc.model.Transicao;
 import com.example.projecttc.utils.CompletarAfd;
-import com.example.projecttc.utils.VerificarAlfabeto;
+import com.example.projecttc.utils.ValidacaoAlfabeto;
 
 @Service
 public class UniaoService {
-    public Automato UnirAFN(Automato automato1, Automato automato2) throws Exception {
+    public Automato uniaoAFN(Automato automato1, Automato automato2) throws Exception {
         // ArrayLists que serão preenchidos com os dados dos autômatos
         ArrayList<Estado> lstEstados1 = (ArrayList<Estado>) automato1.getEstados();
         ArrayList<Transicao> lstTransicoes1 = (ArrayList<Transicao>) automato1.getTransicoes();
@@ -106,9 +106,9 @@ public class UniaoService {
         transicoes.addAll(transicaoParaNovoFinal);
         return new Automato("UniaoAFN",estados,transicoes);
     }
-    public Automato UnirAFD(Automato automato1, Automato automato2) {
+    public Automato uniaoAFD(Automato automato1, Automato automato2) {
 
-        if(VerificarAlfabeto.compararAlfabeto(automato1.getAlfabeto(),automato2.getAlfabeto())) {
+        if(ValidacaoAlfabeto.compararAlfabeto(automato1.getAlfabeto(),automato2.getAlfabeto())) {
             ArrayList<Estado> novosEstados = new ArrayList<Estado>();
             ArrayList<Transicao> novasTransicoes = new ArrayList<Transicao>();
 
