@@ -17,10 +17,8 @@ public class CompletarAfd {
 
                     if (transicao.getSimbolo().equals(simbolo)) {
                         temTransicaoParaSimbolo = true;
-                        break;
                     }
                 }
-
                 // Se não houver transição para algum símbolo do alfabeto, o AFD não é completo
                 if (!temTransicaoParaSimbolo) {
 

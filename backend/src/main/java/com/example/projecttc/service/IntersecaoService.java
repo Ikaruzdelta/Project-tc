@@ -25,7 +25,7 @@ public class IntersecaoService {
                 if (estadoExistente == null) {  
                     boolean isInicial = e1.isInicial() && e2.isInicial(); 
                     boolean isFinal = e1.isFinal() && e2.isFinal();
-                    Estado novoEstado = new Estado(estadosInterseccao.size(), nomeNovoEstado, isFinal, isInicial, 0.0, 0.0); 
+                    Estado novoEstado = new Estado(estadosInterseccao.size(), nomeNovoEstado, isInicial, isFinal, 0.0, 0.0); 
                     estadosInterseccao.add(novoEstado);
                     estadosVisitados.add(novoEstado.getNome());
                 }
@@ -42,7 +42,7 @@ public class IntersecaoService {
                                     if (novoEstadoDestino == null) {
                                         boolean isInicialDestino = destino1.isInicial() && destino2.isInicial(); 
                                         boolean isFinalDestino = destino1.isFinal() && destino2.isFinal(); 
-                                        novoEstadoDestino = new Estado(estadosInterseccao.size(), destino1.getNome() + "_" + destino2.getNome(), isFinalDestino, isInicialDestino, 0, 0); 
+                                        novoEstadoDestino = new Estado(estadosInterseccao.size(), destino1.getNome() + "_" + destino2.getNome(), isInicialDestino, isFinalDestino,0, 0); 
 
                                         estadosInterseccao.add(novoEstadoDestino);
                                         estadosVisitados.add(novoEstadoDestino.getNome());
@@ -98,10 +98,12 @@ public class IntersecaoService {
         if(ValidacaoAlfabeto.compararAlfabeto(automato1.getAlfabeto(),automato2.getAlfabeto())) {
             ArrayList<Estado> novosEstados = new ArrayList<Estado>();
             ArrayList<Transicao> novasTransicoes = new ArrayList<Transicao>();
-
-            CompletarAfd.deixarAFDCompleto(automato1);
-            CompletarAfd.deixarAFDCompleto(automato2);
-
+            if (!CompletarAfd.isAFDCompleto(automato1)){
+                CompletarAfd.deixarAFDCompleto(automato1);
+            }
+            if (!CompletarAfd.isAFDCompleto(automato2)) {
+                CompletarAfd.deixarAFDCompleto(automato2);
+           }
             // Fazer as combinacoes entre estados
             for (Estado estado1 : automato1.getEstados()) {
                 for (Estado estado2 : automato2.getEstados()) {
@@ -112,13 +114,13 @@ public class IntersecaoService {
                             System.out.println(estado1.getNome());
                             System.out.println(estado2.getNome());
                             System.out.println("Adicionou inicial&final");
-                            novosEstados.add(new Estado(novosEstados.size(),estado1.getNome() + ";" + estado2.getNome(), true, true, estado1.getX(), estado2.getY()));
+                            novosEstados.add(new Estado(novosEstados.size(),estado1.getNome() + ";" + estado2.getNome(),true,  true, estado1.getX(), estado2.getY()));
                         } else {
                             System.out.println(estado1.getNome());
                             System.out.println(estado2.getNome());
                             System.out.println("so eh inicial");
                             //eh inicial
-                            novosEstados.add(new Estado(novosEstados.size(),estado1.getNome() + ";" + estado2.getNome(),false, true, estado1.getX(), estado2.getY()));
+                            novosEstados.add(new Estado(novosEstados.size(),estado1.getNome() + ";" + estado2.getNome(), true, false,estado1.getX(), estado2.getY()));
                         }
                     } else {
                         //eh fim
@@ -126,7 +128,7 @@ public class IntersecaoService {
                             System.out.println(estado1.getNome());
                             System.out.println(estado2.getNome());
                             System.out.println("So eh final");
-                            novosEstados.add(new Estado(novosEstados.size(),estado1.getNome() + ";" + estado2.getNome(), true, false, estado1.getX(), estado2.getY()));
+                            novosEstados.add(new Estado(novosEstados.size(),estado1.getNome() + ";" + estado2.getNome(), false, true, estado1.getX(), estado2.getY()));
                         } else {
                             System.out.println(estado1.getNome());
                             System.out.println(estado2.getNome());
