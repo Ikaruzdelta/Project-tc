@@ -10,9 +10,9 @@ import com.example.projecttc.model.Transicao;
 import com.example.projecttc.utils.CompletarAfd;
 import com.example.projecttc.utils.ValidacaoAlfabeto;
 @Service
-public class InterseccaoService {
+public class IntersecaoService {
 
-    public Automato interseccaoAFN(Automato automato1, Automato automato2) {
+    public Automato intersecaoAFN(Automato automato1, Automato automato2) {
         ArrayList<Estado> estadosInterseccao = new ArrayList<>();
         ArrayList<Transicao> transicoesInterseccao = new ArrayList<>();
         HashSet<String> estadosVisitados = new HashSet<>();
@@ -93,7 +93,7 @@ public class InterseccaoService {
 
 
 
-    public Automato interseccaoAFD(Automato automato1,Automato automato2){
+    public Automato intersecaoAFD(Automato automato1,Automato automato2){
 
         if(ValidacaoAlfabeto.compararAlfabeto(automato1.getAlfabeto(),automato2.getAlfabeto())) {
             ArrayList<Estado> novosEstados = new ArrayList<Estado>();
