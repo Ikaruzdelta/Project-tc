@@ -33,6 +33,7 @@ function exibirFormulario(operation) {
     case "estrela":
     case "reverso":
     case "homomorfismo":
+    case "minimizacao":
       formHtml = `
                 <h2>${
                   operation.charAt(0).toUpperCase() + operation.slice(1)
