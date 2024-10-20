@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
+import java.io.File;
+import java.util.ArrayList;
 import com.example.projecttc.model.Automato;
 import com.example.projecttc.model.Estado;
 import com.example.projecttc.model.Transicao;
@@ -60,6 +61,17 @@ public class AutomatoController {
     @Autowired
     private HomomorfismoService homomorfismoService;
 
+    @Autowired
+    private MinimizacaoService minimizacaoService;
+
+    @PostMapping("/complemento")
+    public ResponseEntity<String> complemento(@RequestParam("file") MultipartFile file) {
+        try {
+            if (file == null || !file.getOriginalFilename().endsWith(".jff")) {
+                return ResponseEntity.badRequest().body("Por favor, envie um arquivo .jff válido.");
+            }
+            String fileName = new File(file.getOriginalFilename()).getName();
+          
     @PostMapping({"/complemento"})
    public ResponseEntity<Resource> complemento(@RequestParam("file") MultipartFile file) {
       File tempFile = null;
@@ -326,4 +338,29 @@ public class AutomatoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao aplicar o homomorfismo no autômato: " + e.getMessage());
         }
     }
+    @PostMapping("/minimizacao")
+    public ResponseEntity<String> minimizacao(@RequestParam("file") MultipartFile file) {
+        try {
+            if (file == null || !file.getOriginalFilename().endsWith(".jff")) {
+                return ResponseEntity.badRequest().body("Por favor, envie um arquivo .jff válido.");
+            }
+            String fileName = new File(file.getOriginalFilename()).getName();
+            String outputPath = "resultados/minimizacao/M_" + fileName;
+            File tempFile = File.createTempFile("automato", ".jff");
+            file.transferTo(tempFile);
+            Automato automato = JFFParser.parse(tempFile);
+            
+            // Chama o serviço de minimização
+            Automato minimizado = minimizacaoService.minimizacao(automato);
+            
+            GravarXML gravador = new GravarXML();
+            gravador.gravarAutomato((ArrayList<Estado>) minimizado.getEstados(), (ArrayList<Transicao>) minimizado.getTransicoes(), outputPath);
+            
+            return ResponseEntity.ok("Minimização de Autômato realizada com sucesso! Arquivo salvo em: " + outputPath);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao minimizar o autômato: " + e.getMessage());
+        }
+    }
+
 }
