@@ -1,15 +1,15 @@
 package com.example.projecttc.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import com.example.projecttc.model.Automato;
 import com.example.projecttc.model.Estado;
 import com.example.projecttc.utils.CompletarAfd;
 import com.example.projecttc.utils.ValidacaoAFD;
 import com.example.projecttc.utils.ValidacaoAlfabeto;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Service
 public class DiferencaService {
@@ -36,13 +36,11 @@ public class DiferencaService {
     }
 
     public Automato diferencaSimetrica(Automato automato1, Automato automato2) {
-        // Verifica se os alfabetos são compatíveis
         if (!ValidacaoAlfabeto.compararAlfabeto(automato1.getAlfabeto(), automato2.getAlfabeto())) {
             logger.error("Os alfabetos dos AFDs são diferentes. A operação de diferença simétrica não pode ser realizada.");
             throw new IllegalArgumentException("Os alfabetos dos AFDs são diferentes.");
         }
 
-        // Completar os AFDs se necessário
         if (!CompletarAfd.isAFDCompleto(automato1)) {
             CompletarAfd.deixarAFDCompleto(automato1);
             logger.info("AFD 1 completado automaticamente.");
@@ -52,17 +50,14 @@ public class DiferencaService {
             logger.info("AFD 2 completado automaticamente.");
         }
 
-        // Realizar a diferença
         Automato automato3 = diferenca(automato1, automato2);
         Automato automato4 = diferenca(complementoService.complemento(automato2), automato1);
 
-        // Verificar novamente os alfabetos
         if (!ValidacaoAlfabeto.compararAlfabeto(automato3.getAlfabeto(), automato4.getAlfabeto())) {
             logger.error("Os alfabetos dos autômatos resultantes da diferença são diferentes. Operação abortada.");
             throw new IllegalArgumentException("Os alfabetos dos autômatos resultantes da diferença são diferentes.");
         }
 
-        // Completar novamente, se necessário
         if (!CompletarAfd.isAFDCompleto(automato3)) {
             CompletarAfd.deixarAFDCompleto(automato3);
             logger.info("AFD 3 completado automaticamente.");
@@ -72,7 +67,6 @@ public class DiferencaService {
             logger.info("AFD 4 completado automaticamente.");
         }
 
-        // Realizar a união dos resultados das duas diferenças
         for (Estado estado : automato3.getEstados()){
             estado.setNome("q"+ estado.getId());
         }

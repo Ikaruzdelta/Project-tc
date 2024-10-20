@@ -1,23 +1,23 @@
 package com.example.projecttc.service;
 
+import java.util.ArrayList;
+
+import org.springframework.stereotype.Service;
+
 import com.example.projecttc.model.Automato;
 import com.example.projecttc.model.Estado;
 import com.example.projecttc.model.Transicao;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 
 @Service
 public class EstadoService {
 
-    // Método para buscar um estado pela sua id
     public static Estado getEstadoById(ArrayList<Estado> estados, int id) {
         for (Estado estado : estados) {
             if (estado.getId() == id) {
                 return estado;
             }
         }
-        return null; // Retorna null se nenhum estado com o ID for encontrado
+        return null;
     }
 
     public static void carregarTransicoesEstado(Automato automato) {
