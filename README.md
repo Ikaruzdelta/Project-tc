@@ -36,14 +36,9 @@ Faça o download ou clone o repositório para a sua máquina local.
    cd backend
    ```
 
-2. Instale as dependências Maven:
+2. Execução:
    ```bash
-   mvn clean install
-   ```
-
-3. Execute o servidor:
-   ```bash
-   mvn spring-boot:run
+   Execute o App.java
    ```
 
    O servidor backend será iniciado na porta padrão (geralmente `8080`). Certifique-se de que nenhuma outra aplicação está usando essa porta.
