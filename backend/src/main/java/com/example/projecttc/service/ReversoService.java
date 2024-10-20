@@ -3,6 +3,7 @@ package com.example.projecttc.service;
 import java.util.ArrayList;
 
 import org.springframework.stereotype.Service;
+
 import com.example.projecttc.model.Automato;
 import com.example.projecttc.model.Estado;
 import com.example.projecttc.model.Transicao;
@@ -54,13 +55,13 @@ public class ReversoService {
             Estado estadoOriginal = procurarEstadoOriginal(e.getId(), estadosOriginais);
 
             if (estadoOriginal.isFinal()) {
-                e.setInicial(true);  // Estados finais se tornam iniciais
+                e.setInicial(true);  
             }
 
             if (estadoOriginal.isInicial()) {
-                e.setFinal(true);  // Estados iniciais se tornam finais
+                e.setFinal(true);  
             } else {
-                e.setInicial(false); // Outros estados não são mais iniciais
+                e.setInicial(false); 
             }
         }
     }
@@ -83,16 +84,15 @@ public class ReversoService {
         for (Estado e : estadosOriginais) {
             if (e.isFinal()) {
                 numFinais++;
-                estadosFinais.add(e); // Adiciona o estado final à lista
+                estadosFinais.add(e); 
             }
             if (e.isInicial()) {
-                estadoInicialOriginal = e; // Armazena o estado inicial original
+                estadoInicialOriginal = e;
             }
         }
 
         // Se houver mais de um estado final, cria um novo estado inicial
         if (numFinais > 1 && estadoInicialOriginal != null) {
-            // Cria um novo estado inicial (qNovo) e define como inicial
             Estado novoEstadoInicial = new Estado(estadosReverso.size(), "qNovo", true, false, 50, 50); // qNovo como inicial
             estadosReverso.add(novoEstadoInicial);
 
@@ -100,12 +100,12 @@ public class ReversoService {
             for (Estado estadoFinal : estadosFinais) {
                 Transicao transicaoLambda = new Transicao(novoEstadoInicial, estadoFinal, "λ");
                 transicoesReverso.add(transicaoLambda);
-                estadoFinal.setFinal(false); // Marca o antigo estado final como não final
+                estadoFinal.setFinal(false); 
             }
 
             // Marca o estado inicial original como final
             estadoInicialOriginal.setFinal(true);
-            estadoInicialOriginal.setInicial(false); // O estado inicial original não é mais inicial
+            estadoInicialOriginal.setInicial(false);
         }
     }
 }

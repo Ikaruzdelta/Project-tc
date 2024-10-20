@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import org.springframework.stereotype.Service;
+
 import com.example.projecttc.model.Automato;
 import com.example.projecttc.model.Estado;
 import com.example.projecttc.model.Transicao;
@@ -66,7 +67,7 @@ public class IntersecaoService {
         }
 
         Automato interseccaoAFN = new Automato("interseccaoAFN", estadosInterseccao, transicoesInterseccao);
-        return removerEstadosSemTransicoes(interseccaoAFN); // Retornando o automato interseccao após limpar estados sem transições
+        return removerEstadosSemTransicoes(interseccaoAFN); 
     }
 
     private Automato removerEstadosSemTransicoes(Automato automato) {
@@ -140,21 +141,17 @@ public class IntersecaoService {
                 }
             }
 
-
-            // Percorre todas as combinações dos novos estados
             for (Estado estado : novosEstados) {
                 System.out.println("Combinação dos estados: " + estado.getNome());
 
-                String[] nomes = estado.getNome().split(";"); // Dividir o nome do estado combinado para recuperar os dois estados originais
+                String[] nomes = estado.getNome().split(";"); 
 
-                //Pegar a referencia de cada um individualmente em suas respectivas listas
                 Estado estado1 = automato1.getEstados().stream().filter(e -> e.getNome().equals(nomes[0])).findFirst().get();
                 Estado estado2 = automato2.getEstados().stream().filter(e -> e.getNome().equals(nomes[1])).findFirst().get();
                 System.out.println("Estado 1: " + estado1.getNome());
                 System.out.println("Estado 2: " + estado1.getNome());
                 //se achou
                 if (estado1 != null && estado2 != null) {
-                    // Pega as transições específicas de cada estado e joga num array
                     ArrayList<Transicao> transicoesEstado1 = (ArrayList<Transicao>)estado1.getTransicoes();
                     System.out.println("Transições do estado " + estado1.getNome());
                     for (Transicao t : transicoesEstado1) {
