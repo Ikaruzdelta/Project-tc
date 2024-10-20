@@ -1,15 +1,13 @@
 package com.example.projecttc.controller;
 
-import com.example.projecttc.model.Automato;
-import com.example.projecttc.model.Estado;
-import com.example.projecttc.model.Transicao;
-import com.example.projecttc.service.*;
-import com.example.projecttc.utils.ExibirResultado;
-import com.example.projecttc.utils.GravarXML;
-import com.example.projecttc.utils.JFFParser;
-import com.example.projecttc.utils.ValidacaoAFD;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,9 +15,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.util.ArrayList;
+import com.example.projecttc.model.Automato;
+import com.example.projecttc.model.Estado;
+import com.example.projecttc.model.Transicao;
+import com.example.projecttc.service.ComplementoService;
+import com.example.projecttc.service.ConcatenacaoService;
+import com.example.projecttc.service.DiferencaService;
+import com.example.projecttc.service.EstrelaService;
+import com.example.projecttc.service.HomomorfismoService;
+import com.example.projecttc.service.IntersecaoService;
+import com.example.projecttc.service.ReversoService;
+import com.example.projecttc.service.UniaoService;
+import com.example.projecttc.utils.ExibirResultado;
+import com.example.projecttc.utils.GravarXML;
+import com.example.projecttc.utils.JFFParser;
+import com.example.projecttc.utils.ValidacaoAFD;
 
 @RestController
 @RequestMapping("/api/automato")
@@ -59,20 +71,45 @@ public class AutomatoController {
                 return ResponseEntity.badRequest().body("Por favor, envie um arquivo .jff válido.");
             }
             String fileName = new File(file.getOriginalFilename()).getName();
+          
+    @PostMapping({"/complemento"})
+   public ResponseEntity<Resource> complemento(@RequestParam("file") MultipartFile file) {
+      File tempFile = null;
+
+      ResponseEntity var12;
+      try {
+         if (file != null && file.getOriginalFilename().endsWith(".jff")) {
+            String fileName = (new File(file.getOriginalFilename())).getName();
             String outputPath = "resultados/complemento/C_" + fileName;
-            File tempFile = File.createTempFile("automato", ".jff");
+            tempFile = File.createTempFile("automato", ".jff");
             file.transferTo(tempFile);
             Automato automato = JFFParser.parse(tempFile);
-            Automato complemento = complementoService.complemento(automato);
+            Automato complemento = this.complementoService.complemento(automato);
             GravarXML gravador = new GravarXML();
-            gravador.gravarAutomato((ArrayList<Estado>) complemento.getEstados(), (ArrayList<Transicao>) complemento.getTransicoes(), outputPath);
-            String resultadoFormatado = ExibirResultado.exibirResultado(complemento);
-            return ResponseEntity.ok(resultadoFormatado + "\n\nComplemento de Autômato realizado com sucesso! Arquivo salvo em: " + outputPath);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao complementar o autômato: " + e.getMessage());
-        }
-    }
+            gravador.gravarAutomato((ArrayList)complemento.getEstados(), (ArrayList)complemento.getTransicoes(), outputPath);
+            File arquivoResultante = new File(outputPath);
+            InputStreamResource resource = new InputStreamResource(new FileInputStream(arquivoResultante));
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "attachment; filename=" + arquivoResultante.getName());
+            headers.add("Content-Type", "application/xml");
+            var12 = ((ResponseEntity.BodyBuilder)ResponseEntity.ok().headers(headers)).contentLength(arquivoResultante.length()).body(resource);
+            return var12;
+         }
+
+         var12 = ResponseEntity.badRequest().body((Object)null);
+      } catch (Exception var15) {
+         var15.printStackTrace();
+         var12 = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body((Object)null);
+         return var12;
+      } finally {
+         if (tempFile != null && tempFile.exists()) {
+            tempFile.delete();
+         }
+
+      }
+
+      return var12;
+   }
 
     @PostMapping("/estrela")
     public ResponseEntity<String> estrela(@RequestParam("file") MultipartFile file) {

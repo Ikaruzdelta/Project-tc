@@ -1,9 +1,7 @@
 package com.example.projecttc.utils;
 
-import com.example.projecttc.model.Estado;
-import com.example.projecttc.model.Transicao;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import java.io.File;
+import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -14,8 +12,12 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.util.ArrayList;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import com.example.projecttc.model.Estado;
+import com.example.projecttc.model.Transicao;
 
 public class GravarXML {
 
@@ -37,22 +39,18 @@ public class GravarXML {
             Element rootElement = doc.createElement("structure");
             doc.appendChild(rootElement);
 
-            // Adicionar o tipo de autômato: "fa" (finite automaton)
             Element typeElement = doc.createElement("type");
-            typeElement.appendChild(doc.createTextNode("fa"));  // "fa" para autômato finito
+            typeElement.appendChild(doc.createTextNode("fa"));  
             rootElement.appendChild(typeElement);
 
-            // Criar o elemento "automaton"
             Element automatonElement = doc.createElement("automaton");
             rootElement.appendChild(automatonElement);
 
-            // Adicionar os estados
             for (Estado estado : estados) {
                 Element stateElement = doc.createElement("state");
                 stateElement.setAttribute("id", String.valueOf(estado.getId()));
                 stateElement.setAttribute("name", estado.getNome());
 
-                // Posição x e y do estado
                 Element xElement = doc.createElement("x");
                 xElement.appendChild(doc.createTextNode(String.valueOf(estado.getX())));
                 stateElement.appendChild(xElement);
@@ -61,13 +59,11 @@ public class GravarXML {
                 yElement.appendChild(doc.createTextNode(String.valueOf(estado.getY())));
                 stateElement.appendChild(yElement);
 
-                // Se o estado for inicial
                 if (estado.isInicial()) {
                     Element initialElement = doc.createElement("initial");
                     stateElement.appendChild(initialElement);
                 }
 
-                // Se o estado for final
                 if (estado.isFinal()) {
                     Element finalElement = doc.createElement("final");
                     stateElement.appendChild(finalElement);
@@ -95,14 +91,12 @@ public class GravarXML {
                 automatonElement.appendChild(transitionElement);
             }
 
-            // Configura a escrita do XML no arquivo de saída
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");  // Indenta o XML para melhorar a legibilidade
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             DOMSource source = new DOMSource(doc);
             StreamResult result = new StreamResult(new File(outputFilePath));
 
-            // Salvar o arquivo
             transformer.transform(source, result);
 
             System.out.println("Autômato salvo com sucesso no arquivo: " + outputFilePath);

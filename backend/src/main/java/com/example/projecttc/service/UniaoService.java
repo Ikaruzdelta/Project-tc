@@ -3,6 +3,7 @@ package com.example.projecttc.service;
 import java.util.ArrayList;
 
 import org.springframework.stereotype.Service;
+
 import com.example.projecttc.model.Automato;
 import com.example.projecttc.model.Estado;
 import com.example.projecttc.model.Transicao;
@@ -21,7 +22,6 @@ public class UniaoService {
         ArrayList<Estado> estadosIniciais = new ArrayList<>();
         ArrayList<Estado> estadosFinais = new ArrayList<>();
 
-        // Determinar o menor ID existente para atribuir ao novo inicial
         int menorId = Integer.MAX_VALUE;
 
         for (Estado lE1 : lstEstados1) {
@@ -36,29 +36,24 @@ public class UniaoService {
             if (lE2.isFinal()) estadosFinais.add(lE2);
         }
 
-        // Ajuste das posições dos estados
-        double yOffset = 200; // Deslocamento vertical para o segundo autômato
+        double yOffset = 200; 
         for (Estado estado : lstEstados2) {
             estado.setY(estado.getY() + yOffset);
         }
 
-        // Criação dos novos estados, o novo inicial e o novo final
         Estado novoInicial = new Estado(menorId, "q" + menorId, true, false, 0, 0);
 
-        // Ajusta os IDs dos estados da lista 1 para evitar conflitos (ID + 1)
         for (Estado estado : lstEstados1) {
             estado.setId(estado.getId() + 1);
             estado.setNome("q" + estado.getId());
         }
 
-        // Ajusta os IDs dos estados da lista 2 com base no tamanho da lista 1 + 1
         int tamanhoLista1 = lstEstados1.size();
         for (Estado estado : lstEstados2) {
             estado.setId(estado.getId() + tamanhoLista1 + 1);
             estado.setNome("q" + estado.getId());
         }
 
-        // Encontra a posição x máxima dos estados para posicionar o novo estado final
         double maxX = Double.MIN_VALUE;
         for (Estado estado : lstEstados1) {
             if (estado.getX() > maxX) maxX = estado.getX();
@@ -67,15 +62,12 @@ public class UniaoService {
             if (estado.getX() > maxX) maxX = estado.getX();
         }
 
-        // Criação do novo estado final com o valor de x 150 unidades à direita do estado mais à direita
         int totalEstados = tamanhoLista1 + lstEstados2.size() + 1; 
         Estado novoFinal = new Estado(totalEstados, "q" + totalEstados, false, true, maxX + 150, 0);
 
-        // Ajusta as posições verticais do novo inicial e do novo final
         novoInicial.setY((estadosIniciais.get(0).getY() + estadosIniciais.get(1).getY()) / 2);
         novoFinal.setY(novoInicial.getY());
-        
-        // Transições do novo inicial para os antigos iniciais
+
         Transicao transicaoEpsilon1 = new Transicao(novoInicial, estadosIniciais.get(0), "");
         estadosIniciais.get(0).setInicial(false);
         Transicao transicaoEpsilon2 = new Transicao(novoInicial, estadosIniciais.get(1), "");
@@ -83,17 +75,14 @@ public class UniaoService {
 
         ArrayList<Transicao> transicaoParaNovoFinal = new ArrayList<>();
 
-        // Transições dos antigos finais para o novo final
         for (Estado eF : estadosFinais) {
             transicaoParaNovoFinal.add(new Transicao(eF, novoFinal, ""));
             eF.setFinal(false);
         }
 
-        // Criação dos arrays finais de estados e transições
         ArrayList<Estado> estados = new ArrayList<>();
         ArrayList<Transicao> transicoes = new ArrayList<>();
 
-        // Adiciona todos os estados e transições ao array
         estados.add(novoInicial);
         estados.addAll(lstEstados1);
         estados.addAll(lstEstados2);
@@ -117,22 +106,17 @@ public class UniaoService {
             if(!CompletarAfd.isAFDCompleto(automato2)){
                 CompletarAfd.deixarAFDCompleto(automato2);
             }
-            //percorre todos os estados dos 2 automatos para realizar as combinações
             for (Estado estado1 : automato1.getEstados()) {
                 for (Estado estado2 : automato2.getEstados()) {
                     if (!estado1.isInicial() || !estado2.isInicial()) {
-                        //verifica se são finais
                         if (estado1.isFinal() || estado2.isFinal()) {
                             novosEstados.add(new Estado(novosEstados.size(), estado1.getNome() + ";" + estado2.getNome(),  false, true, estado1.getX(), estado1.getY()));
                         } else {
                             novosEstados.add(new Estado(novosEstados.size(),estado1.getNome() + ";" + estado2.getNome(), false, false, estado1.getX(), estado1.getY()));
                         }
-                        //eh inicial
                     } else {
-                        //eh inicial e final
                         if (estado1.isFinal() || estado2.isFinal()) {
                             novosEstados.add(new Estado(novosEstados.size(), estado1.getNome() + ";" + estado2.getNome(), true, true, estado1.getX(), estado1.getY()));
-                            //eh inicial mas nao eh final
                         } else {
                             novosEstados.add(new Estado(novosEstados.size(), estado1.getNome() + ";" + estado2.getNome(), true, false, estado1.getX(), estado1.getY()));
                         }
