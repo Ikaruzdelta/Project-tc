@@ -15,8 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import java.io.File;
-import java.util.ArrayList;
+
 import com.example.projecttc.model.Automato;
 import com.example.projecttc.model.Estado;
 import com.example.projecttc.model.Transicao;
@@ -26,6 +25,7 @@ import com.example.projecttc.service.DiferencaService;
 import com.example.projecttc.service.EstrelaService;
 import com.example.projecttc.service.HomomorfismoService;
 import com.example.projecttc.service.IntersecaoService;
+import com.example.projecttc.service.MinimizacaoService;
 import com.example.projecttc.service.ReversoService;
 import com.example.projecttc.service.UniaoService;
 import com.example.projecttc.utils.ExibirResultado;
@@ -64,14 +64,6 @@ public class AutomatoController {
     @Autowired
     private MinimizacaoService minimizacaoService;
 
-    @PostMapping("/complemento")
-    public ResponseEntity<String> complemento(@RequestParam("file") MultipartFile file) {
-        try {
-            if (file == null || !file.getOriginalFilename().endsWith(".jff")) {
-                return ResponseEntity.badRequest().body("Por favor, envie um arquivo .jff válido.");
-            }
-            String fileName = new File(file.getOriginalFilename()).getName();
-          
     @PostMapping({"/complemento"})
    public ResponseEntity<Resource> complemento(@RequestParam("file") MultipartFile file) {
       File tempFile = null;
