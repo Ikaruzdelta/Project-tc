@@ -34,6 +34,7 @@ function exibirFormulario(operation) {
     case "reverso":
     case "homomorfismo":
     case "minimizacao":
+    case "conversorAFN": 
       formHtml = `
                 <h2>${
                   operation.charAt(0).toUpperCase() + operation.slice(1)
@@ -110,126 +111,70 @@ function exportarXML(data) {
   // Implemente a lógica para exportar o XML, caso necessário.
 }
 
-let receivedBlob = null; // Variável para armazenar o Blob recebido
+// Configurar eventos para operações específicas
 
-function enviarArquivo(formData, url) {
-  fetch(url, {
-    method: "POST",
-    body: formData,
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Erro na resposta do servidor");
-      }
-      return response.blob(); // Obter a resposta como Blob
-    })
-    .then((blob) => {
-      receivedBlob = blob; // Armazenar o Blob na variável
-
-      // Exibir mensagem de sucesso ou atualizar a interface conforme necessário
-      const resultadoDiv = document.getElementById("resultado");
-      if (resultadoDiv) {
-        resultadoDiv.innerHTML = "Arquivo recebido com sucesso. Clique em 'Exportar XML' para baixar o arquivo.";
-      } else {
-        alert("Arquivo recebido com sucesso. Clique em 'Exportar XML' para baixar o arquivo.");
-      }
-    })
-    .catch((error) => {
-      const resultadoDiv = document.getElementById("resultado");
-      if (resultadoDiv) {
-        resultadoDiv.innerHTML = "Erro ao processar o arquivo: " + error.message;
-      } else {
-        alert("Erro ao processar o arquivo: " + error.message);
-      }
-    });
-}
-
-const exportBtn = document.getElementById("exportBtn");
-if (exportBtn) {
-  exportBtn.addEventListener("click", function () {
-    if (receivedBlob) {
-      const url = window.URL.createObjectURL(receivedBlob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "arquivo_resultante.jff"; // Nome do arquivo a ser salvo
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    } else {
-      alert("Nenhum arquivo para exportar. Por favor, processe um arquivo primeiro.");
-    }
+// Complemento de Automato
+const complementoForm = document.getElementById("complementoForm");
+if (complementoForm) {
+  complementoForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const file = document.getElementById("fileComplemento").files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+    enviarArquivo(
+      formData,
+      "http://localhost:8080/api/automato/complemento",
+      document.getElementById("complementoResult")
+    );
   });
 }
 
-// Verificar se o DOM está carregado antes de adicionar eventos aos formulários
-window.addEventListener('DOMContentLoaded', () => {
-  // Complementar Automato
-  const complementoForm = document.getElementById("complementoForm");
-  if (complementoForm) {
-    complementoForm.addEventListener("submit", function (e) {
-      e.preventDefault(); // Prevenir o comportamento padrão de submit do formulário
-      const file = document.getElementById("fileComplemento").files[0];
-      const formData = new FormData();
-      formData.append("file", file);
-      enviarArquivo(
-        formData,
-        "http://localhost:8080/api/automato/complemento",
-        document.getElementById("complementoResult")
-      );
-    });
-  }
+// Estrela de Automato
+const estrelaForm = document.getElementById("estrelaForm");
+if (estrelaForm) {
+  estrelaForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const file = document.getElementById("fileEstrela").files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+    enviarArquivo(
+      formData,
+      "http://localhost:8080/api/automato/estrela",
+      document.getElementById("estrelaResult")
+    );
+  });
+}
 
-  // Estrela de Automato
-  const estrelaForm = document.getElementById("estrelaForm");
-  if (estrelaForm) {
-    estrelaForm.addEventListener("submit", function (e) {
-      e.preventDefault(); // Prevenir o comportamento padrão de submit do formulário
-      const file = document.getElementById("fileEstrela").files[0];
-      const formData = new FormData();
-      formData.append("file", file);
-      enviarArquivo(
-        formData,
-        "http://localhost:8080/api/automato/estrela",
-        document.getElementById("estrelaResult")
-      );
-    });
-  }
+// Conversor AFN-AFD
+const conversorAFNForm = document.getElementById("conversorAFNForm");
+if (conversorAFNForm) {
+  conversorAFNForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const file = document.getElementById("fileConversorAFN").files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+    enviarArquivo(
+      formData,
+      "http://localhost:8080/api/automato/conversorAFN",
+      document.getElementById("conversorAFNResult")
+    );
+  });
+}
 
-  // Concatenar Automatos
-  const concatenacaoForm = document.getElementById("concatenacaoForm");
-  if (concatenacaoForm) {
-    concatenacaoForm.addEventListener("submit", function (e) {
-      e.preventDefault(); // Prevenir o comportamento padrão de submit do formulário
-      const file1 = document.getElementById("file1").files[0];
-      const file2 = document.getElementById("file2").files[0];
-      const formData = new FormData();
-      formData.append("file1", file1);
-      formData.append("file2", file2);
-      enviarArquivo(
-        formData,
-        "http://localhost:8080/api/automato/concatenacao",
-        document.getElementById("concatResult")
-      );
-    });
-  }
-
-  // União de Automatos
-  const uniaoForm = document.getElementById("uniaoForm");
-  if (uniaoForm) {
-    uniaoForm.addEventListener("submit", function (e) {
-      e.preventDefault(); // Prevenir o comportamento padrão de submit do formulário
-      const file1 = document.getElementById("fileUniao1").files[0];
-      const file2 = document.getElementById("fileUniao2").files[0];
-      const formData = new FormData();
-      formData.append("file1", file1);
-      formData.append("file2", file2);
-      enviarArquivo(
-        formData,
-        "http://localhost:80/api/automato/uniao",
-        document.getElementById("uniaoResult")
-      );
-    });
-  }
-
-});
+// União de Automatos
+const uniaoForm = document.getElementById("uniaoForm");
+if (uniaoForm) {
+  uniaoForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const file1 = document.getElementById("fileUniao1").files[0];
+    const file2 = document.getElementById("fileUniao2").files[0];
+    const formData = new FormData();
+    formData.append("file1", file1);
+    formData.append("file2", file2);
+    enviarArquivo(
+      formData,
+      "http://localhost:8080/api/automato/uniao",
+      document.getElementById("uniaoResult")
+    );
+  });
+}

@@ -1,13 +1,9 @@
 package com.example.projecttc.controller;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +17,7 @@ import com.example.projecttc.model.Estado;
 import com.example.projecttc.model.Transicao;
 import com.example.projecttc.service.ComplementoService;
 import com.example.projecttc.service.ConcatenacaoService;
+import com.example.projecttc.service.ConversorAFNService;
 import com.example.projecttc.service.DiferencaService;
 import com.example.projecttc.service.EstrelaService;
 import com.example.projecttc.service.HomomorfismoService;
@@ -64,44 +61,39 @@ public class AutomatoController {
     @Autowired
     private MinimizacaoService minimizacaoService;
 
+    @Autowired
+    private ConversorAFNService conversorAFNService;
+
     @PostMapping({"/complemento"})
-   public ResponseEntity<Resource> complemento(@RequestParam("file") MultipartFile file) {
-      File tempFile = null;
-
-      ResponseEntity var12;
-      try {
-         if (file != null && file.getOriginalFilename().endsWith(".jff")) {
-            String fileName = (new File(file.getOriginalFilename())).getName();
-            String outputPath = "resultados/complemento/C_" + fileName;
-            tempFile = File.createTempFile("automato", ".jff");
+    public ResponseEntity<String> complemento(@RequestParam("file") MultipartFile file) {
+        try {
+            if (file == null || !file.getOriginalFilename().endsWith(".jff")) {
+                return ResponseEntity.badRequest().body("Por favor, envie um arquivo .jff válido.");
+            }
+        
+            String fileName = new File(file.getOriginalFilename()).getName();
+            String outputPath = "resultados/complemento/C_" + fileName; 
+            File tempFile = File.createTempFile("automato", ".jff");
             file.transferTo(tempFile);
+        
             Automato automato = JFFParser.parse(tempFile);
-            Automato complemento = this.complementoService.complemento(automato);
+            Automato complemento = complementoService.complemento(automato);
+        
+            if (complemento == null) {
+                throw new Exception("Falha ao gerar o complemento do autômato, envie um AFD");
+            }
+        
             GravarXML gravador = new GravarXML();
-            gravador.gravarAutomato((ArrayList)complemento.getEstados(), (ArrayList)complemento.getTransicoes(), outputPath);
-            File arquivoResultante = new File(outputPath);
-            InputStreamResource resource = new InputStreamResource(new FileInputStream(arquivoResultante));
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Content-Disposition", "attachment; filename=" + arquivoResultante.getName());
-            headers.add("Content-Type", "application/xml");
-            var12 = ((ResponseEntity.BodyBuilder)ResponseEntity.ok().headers(headers)).contentLength(arquivoResultante.length()).body(resource);
-            return var12;
-         }
-
-         var12 = ResponseEntity.badRequest().body((Object)null);
-      } catch (Exception var15) {
-         var15.printStackTrace();
-         var12 = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body((Object)null);
-         return var12;
-      } finally {
-         if (tempFile != null && tempFile.exists()) {
-            tempFile.delete();
-         }
-
-      }
-
-      return var12;
-   }
+            gravador.gravarAutomato((ArrayList<Estado>) complemento.getEstados(), (ArrayList<Transicao>) complemento.getTransicoes(), outputPath);
+        
+            String resultadoFormatado = ExibirResultado.exibirResultado(complemento);
+            return ResponseEntity.ok(resultadoFormatado + "\n\nOperação de complemento realizada com sucesso! Arquivo salvo em: " + outputPath);
+        
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao aplicar a operação de complemento no autômato: " + e.getMessage());
+        }
+    }
 
     @PostMapping("/estrela")
     public ResponseEntity<String> estrela(@RequestParam("file") MultipartFile file) {
@@ -355,4 +347,40 @@ public class AutomatoController {
         }
     }
 
+   @PostMapping("/conversorAFN")
+    public ResponseEntity<String> conversorAFN(@RequestParam("file") MultipartFile file) {
+        try {
+            // Verifica se o arquivo enviado é válido e se é um arquivo .jff
+            if (file == null || !file.getOriginalFilename().endsWith(".jff")) {
+                return ResponseEntity.badRequest().body("Por favor, envie um arquivo .jff válido.");
+            }
+
+            // Extrai o nome do arquivo e define o caminho para salvar o arquivo resultante
+            String fileName = new File(file.getOriginalFilename()).getName();
+            String outputPath = "resultados/conversaoAFN_AFD/C_" + fileName;
+
+            // Cria um arquivo temporário para processar o autômato
+            File tempFile = File.createTempFile("automato", ".jff");
+            file.transferTo(tempFile);
+
+            // Faz o parsing do arquivo .jff para um objeto Automato
+            Automato automato = JFFParser.parse(tempFile);
+
+            // Chama o serviço de conversão AFN -> AFD
+            Automato convertido = conversorAFNService.conversor(automato);
+
+            // Grava o resultado do autômato convertido no formato XML
+            GravarXML gravador = new GravarXML();
+            gravador .gravarAutomato((ArrayList<Estado>) convertido.getEstados(), 
+                                    (ArrayList<Transicao>) convertido.getTransicoes(), 
+                                    outputPath);
+
+            // Retorna uma resposta de sucesso, informando o caminho do arquivo salvo
+            return ResponseEntity.ok("Conversão de AFN para AFD realizada com sucesso! Arquivo salvo em: " + outputPath);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body("Erro ao converter o AFN para AFD: " + e.getMessage());
+        }
+    }
 }
