@@ -131,15 +131,20 @@ public class MinimizacaoService {
         // Mapa para armazenar o mapeamento entre o ID dos estados antigos e os novos estados unificados
         Map<Integer, Estado> mapaEstado = new HashMap<>();
 
-        // Para cada novo estado, associamos os IDs dos estados antigos que foram unificados nele
         for (Estado estado : novosEstados) {
-            String[] ids = String.valueOf(estado.getId()).split(" ");
+            // Remove o prefixo "q" e separa os IDs, caso seja algo como "q1_q2"
+            String[] ids = estado.getNome().replace("q", "").split("_");
+            
+            // Percorre os IDs extraídos
             for (String idStr : ids) {
-                int id = Integer.parseInt(idStr); // Converte o ID para inteiro
-                mapaEstado.put(id, estado); // Mapeia o ID antigo para o novo estado
+                try {
+                    int id = Integer.parseInt(idStr); // Converte o ID para inteiro
+                    mapaEstado.put(id, estado); // Mapeia o ID antigo para o novo estado
+                } catch (NumberFormatException e) {
+                    System.out.println("Erro ao converter o ID: " + idStr);
+                }
             }
         }
-
         
 
         ArrayList<Transicao> novasTransicoes = new ArrayList<>();
