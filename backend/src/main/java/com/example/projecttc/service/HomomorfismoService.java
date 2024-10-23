@@ -14,8 +14,8 @@ public class HomomorfismoService {
 
     public Automato homomorfismo(Automato automato) {
         Map<String, String> funcaoHomomorfismo = new HashMap<>();
-        funcaoHomomorfismo.put("0", "ab");  
-        funcaoHomomorfismo.put("1", "ε");  
+        funcaoHomomorfismo.put("0", "a");  
+        funcaoHomomorfismo.put("1", "b");  
 
         Automato novoAutomato = new Automato("Automato Transformado");
 
