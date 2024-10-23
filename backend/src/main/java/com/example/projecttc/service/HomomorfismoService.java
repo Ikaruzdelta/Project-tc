@@ -13,23 +13,43 @@ import com.example.projecttc.model.Transicao;
 public class HomomorfismoService {
 
     public Automato homomorfismo(Automato automato) {
+        // Função de homomorfismo mapeando os símbolos de entrada para os novos símbolos
         Map<String, String> funcaoHomomorfismo = new HashMap<>();
         funcaoHomomorfismo.put("0", "a");  
         funcaoHomomorfismo.put("1", "b");  
 
+        // Criação do novo autômato transformado
         Automato novoAutomato = new Automato("Automato Transformado");
 
-        for (Estado estado : automato.getEstados()) {
-            novoAutomato.addEstado(new Estado(estado));
+        // Mapeia os estados originais para novos estados (necessário para evitar duplicação)
+        Map<Estado, Estado> estadoMap = new HashMap<>();
+
+        // Copiando os estados para o novo autômato
+        for (Estado estadoOriginal : automato.getEstados()) {
+            Estado novoEstado = new Estado(estadoOriginal.getId(), estadoOriginal.getNome(), estadoOriginal.isInicial(), estadoOriginal.isFinal(),estadoOriginal.getX(),estadoOriginal.getY());
+
+            // Adiciona o estado no novo autômato
+            novoAutomato.addEstado(novoEstado);
+
+            // Mapeia o estado original para o novo estado
+            estadoMap.put(estadoOriginal, novoEstado);
         }
 
-        for (Estado estado : automato.getEstados()) {
-            for (Transicao transicao : estado.getTransicoes()) {
+        // Processando as transições do autômato original e aplicando o homomorfismo
+        for (Estado estadoOriginal : automato.getEstados()) {
+            for (Transicao transicao : estadoOriginal.getTransicoes()) {
                 String simboloOriginal = transicao.getSimbolo();
-                String simboloTransformado = funcaoHomomorfismo.getOrDefault(simboloOriginal, simboloOriginal); // Usa o símbolo original se não houver substituição
+                // Aplica o homomorfismo aos símbolos
+                String simboloTransformado = funcaoHomomorfismo.getOrDefault(simboloOriginal, simboloOriginal); 
 
-                Transicao novaTransicao = new Transicao(transicao.getOrigem(), transicao.getDestino(), simboloTransformado);
+                // Encontra os estados de origem e destino no novo autômato
+                Estado origemTransformada = estadoMap.get(transicao.getOrigem());
+                Estado destinoTransformado = estadoMap.get(transicao.getDestino());
 
+                // Cria uma nova transição com o símbolo transformado
+                Transicao novaTransicao = new Transicao(origemTransformada, destinoTransformado, simboloTransformado);
+
+                // Adiciona a nova transição ao novo autômato
                 novoAutomato.addTransicao(novaTransicao);
             }
         }
@@ -37,3 +57,4 @@ public class HomomorfismoService {
         return novoAutomato; 
     }
 }
+
