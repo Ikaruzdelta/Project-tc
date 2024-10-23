@@ -75,11 +75,11 @@ public class ReversoService {
         return null;
     }
 
-    private void adicionarEstadoInicialComTransicoesLambda(ArrayList<Estado> estadosOriginais,ArrayList<Estado> estadosReverso, ArrayList<Transicao> transicoesReverso) {
+    private void adicionarEstadoInicialComTransicoesLambda(ArrayList<Estado> estadosOriginais, ArrayList<Estado> estadosReverso, ArrayList<Transicao> transicoesReverso) {
         int numFinais = 0;
         ArrayList<Estado> estadosFinais = new ArrayList<>();
         Estado estadoInicialOriginal = null;
-
+    
         // Identifica os estados finais e o estado inicial
         for (Estado e : estadosOriginais) {
             if (e.isFinal()) {
@@ -90,22 +90,29 @@ public class ReversoService {
                 estadoInicialOriginal = e;
             }
         }
-
+    
         // Se houver mais de um estado final, cria um novo estado inicial
         if (numFinais > 1 && estadoInicialOriginal != null) {
             Estado novoEstadoInicial = new Estado(estadosReverso.size(), "qNovo", true, false, 50, 50); // qNovo como inicial
             estadosReverso.add(novoEstadoInicial);
-
+    
             // Adiciona transições λ do novo estado para os estados finais existentes
             for (Estado estadoFinal : estadosFinais) {
                 Transicao transicaoLambda = new Transicao(novoEstadoInicial, estadoFinal, "λ");
                 transicoesReverso.add(transicaoLambda);
                 estadoFinal.setFinal(false); 
             }
-
-            // Marca o estado inicial original como final
-            estadoInicialOriginal.setFinal(true);
-            estadoInicialOriginal.setInicial(false);
+        } else {
+            // Se houver apenas um estado final, torna-o o estado inicial do reverso
+            for (Estado estadoFinal : estadosFinais) {
+                for(Estado e : estadosReverso){
+                    if(estadoFinal.getId()==e.getId()){
+                        e.setInicial(true);
+                        e.setFinal(false);
+                    }
+                }
+                
+            }
         }
     }
 }
